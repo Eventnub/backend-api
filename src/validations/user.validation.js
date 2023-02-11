@@ -6,7 +6,7 @@ const createUser = {
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),
     email: Joi.string().required().email(),
-    phoneNumber: Joi.string().required(),
+    favoriteCelebrity: Joi.string().required(),
     password: Joi.string().required().custom(password),
     ageRange: Joi.string().required(),
   }),
@@ -28,15 +28,12 @@ const updateUser = {
   params: Joi.object().keys({
     uid: Joi.required().custom(documentId),
   }),
-  body: Joi.object()
-    .keys({
-      firstName: Joi.string(),
-      lastName: Joi.string(),
-      email: Joi.string().email(),
-      phoneNumber: Joi.string(),
-      ageRange: Joi.string(),
-    })
-    .min(1),
+  body: Joi.object().keys({
+    firstName: Joi.string(),
+    lastName: Joi.string(),
+    favoriteCelebrity: Joi.string(),
+    ageRange: Joi.string(),
+  }),
 };
 
 const deleteUser = {

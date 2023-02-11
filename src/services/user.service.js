@@ -1,10 +1,17 @@
+const httpStatus = require("http-status");
+const ApiError = require("../utils/ApiError");
 const { admin, firebase } = require("./firebase.service");
 
 const createUser = async (userBody) => {
-  const user = await admin.auth().createUser({
-    email: userBody.email,
-    password: userBody.password,
-  });
+  try {
+    const user = await admin.auth().createUser({
+      email: userBody.email,
+      password: userBody.password,
+    });
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+  }
+
   await admin.auth().setCustomUserClaims(user.uid, { role: "user" });
   const token = await admin.auth().createCustomToken(user.uid);
   const result = await firebase.auth().signInWithCustomToken(token);
