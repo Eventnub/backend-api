@@ -1,0 +1,54 @@
+const Joi = require("joi");
+const { password, documentId } = require("./custom.validation");
+
+const createUser = {
+  body: Joi.object().keys({
+    firstName: Joi.string().required(),
+    lastName: Joi.string().required(),
+    email: Joi.string().required().email(),
+    phoneNumber: Joi.string().required(),
+    password: Joi.string().required().custom(password),
+    ageRange: Joi.string().required(),
+  }),
+};
+
+const getUsers = {
+  query: Joi.object().keys({
+    role: Joi.string(),
+  }),
+};
+
+const getUser = {
+  params: Joi.object().keys({
+    uid: Joi.required().custom(documentId),
+  }),
+};
+
+const updateUser = {
+  params: Joi.object().keys({
+    uid: Joi.required().custom(documentId),
+  }),
+  body: Joi.object()
+    .keys({
+      firstName: Joi.string(),
+      lastName: Joi.string(),
+      email: Joi.string().email(),
+      phoneNumber: Joi.string(),
+      ageRange: Joi.string(),
+    })
+    .min(1),
+};
+
+const deleteUser = {
+  params: Joi.object().keys({
+    uid: Joi.string().required().custom(documentId),
+  }),
+};
+
+module.exports = {
+  createUser,
+  getUsers,
+  getUser,
+  updateUser,
+  deleteUser,
+};
