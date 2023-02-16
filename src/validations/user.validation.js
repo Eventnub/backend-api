@@ -36,9 +36,13 @@ const updateUser = {
   }),
 };
 
+const uploadUserProfilePhoto = {
+  file: Joi.string().required(),
+};
+
 const saveUserSearchQuery = {
   body: Joi.object().keys({
-    searchQuery: Joi.string()
+    searchQuery: Joi.string(),
   }),
 };
 
@@ -53,6 +57,7 @@ module.exports = {
   getUsers,
   getUser,
   updateUser,
+  uploadUserProfilePhoto,
   saveUserSearchQuery,
   deleteUser,
 };

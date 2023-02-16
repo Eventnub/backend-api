@@ -1,4 +1,5 @@
 const express = require("express");
+const multerConfig = require("../config/multer");
 const { Authentication, Authorization } = require("../middlewares/auth");
 const validate = require("../middlewares/validate");
 const userValidation = require("../validations/user.validation");
@@ -23,11 +24,7 @@ router
 
 router
   .route("/:uid")
-  .get(
-    Authentication, 
-    validate(userValidation.getUser), 
-    userController.getUser
-  )
+  .get(Authentication, validate(userValidation.getUser), userController.getUser)
   .patch(
     Authentication,
     validate(userValidation.updateUser),
@@ -40,12 +37,21 @@ router
     userController.deleteUser
   );
 
-  router
+router
+  .route("/upload-user-profile-photo")
+  .post(
+    Authentication,
+    multerConfig.single("photo"),
+    validate(userValidation.uploadUserProfilePhoto),
+    userController.uploadUserProfilePhoto
+  );
+
+router
   .route("/save-user-search-query")
   .post(
-    Authentication, 
-    validate(userValidation.saveUserSearchQuery), 
+    Authentication,
+    validate(userValidation.saveUserSearchQuery),
     userController.saveUserSearchQuery
-  )
+  );
 
 module.exports = router;

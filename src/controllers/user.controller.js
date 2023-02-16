@@ -26,6 +26,11 @@ const updateUser = catchAsync(async (req, res) => {
   res.send(user);
 });
 
+const uploadUserProfilePhoto = catchAsync(async (req, res) => {
+  const updatedBody = await userService.uploadUserProfilePhoto(req.user.uid, req.file);
+  res.send(updatedBody);
+});
+
 const saveUserSearchQuery = catchAsync(async (req, res) => {
   await userService.saveUserSearchQuery(req.user.uid, req.body.searchQuery);
   res.status(httpStatus.NO_CONTENT).send();
@@ -41,6 +46,7 @@ module.exports = {
   getUsers,
   getUser,
   updateUser,
+  uploadUserProfilePhoto,
   saveUserSearchQuery,
   deleteUser,
 };

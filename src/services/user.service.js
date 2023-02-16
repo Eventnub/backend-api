@@ -1,6 +1,7 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
 const { admin, firebase } = require("./firebase.service");
+const { uploadFile, deleteFile } = require("./fileStorage.service");
 
 const createUser = async (userBody) => {
   try {
@@ -78,6 +79,39 @@ const updateUserById = async (uid, updateBody) => {
   }
 };
 
+const uploadUserProfilePhoto = async (uid, photoFile) => {
+  try {
+    if (!photoFile) {
+      throw new ApiError(httpStatus.NOT_FOUND, "No profile photo was provided");
+    }
+
+    const user = await getUserById(uid);
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, "User with uid not found");
+    }
+
+    if (user.photoUrl) {
+      await deleteFile(user.photoUrl);
+    }
+
+    const filename = `usersPhotos/${uid}.jpg`;
+    const photoUrl = await uploadFile(photoFile, filename);
+    const updateBody = {
+      photoUrl: photoUrl,
+      updatedAt: Date.now(),
+    };
+
+    await admin
+      .firestore()
+      .collection("users")
+      .doc(uid)
+      .update({ ...updateBody });
+    return updateBody;
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+  }
+};
+
 const saveUserSearchQuery = async (uid, searchQuery) => {
   try {
     const user = await getUserById(uid);
@@ -118,6 +152,7 @@ module.exports = {
   getUserById,
   getUserByEmail,
   updateUserById,
+  uploadUserProfilePhoto,
   saveUserSearchQuery,
   deleteUserById,
 };
