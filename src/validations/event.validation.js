@@ -38,7 +38,7 @@ const updateEvent = {
     venue: Joi.string(),
     date: Joi.string(),
     time: Joi.string(),
-    artists: Joi.array().items(Joi.string()),
+    artists: Joi.string(),
     ticketPrice: Joi.number(),
     raffleCount: Joi.number(),
     raffleWinners: Joi.array().items(Joi.object()),

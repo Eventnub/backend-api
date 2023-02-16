@@ -31,7 +31,21 @@ const getEventById = async (uid) => {
   return event.data();
 };
 
-const updateEventById = async (uid, updateBody) => {
+const updateEventById = async (uid, updatePhotoFile, updateBody) => {
+  const event = await getEventById(uid);
+  if (!event) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Event with uid not found");
+  }
+
+  if (updatePhotoFile) {
+    await deleteFile(event.photoUrl);
+    const filename = `eventsPhotos/${uid}.jpg`;
+    const photoUrl = await uploadFile(updatePhotoFile, filename);
+    updateBody.photoUrl = photoUrl;
+  }
+
+  updateBody.updatedAt = Date.now();
+
   await admin
     .firestore()
     .collection("events")

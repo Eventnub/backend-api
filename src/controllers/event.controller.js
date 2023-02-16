@@ -22,7 +22,7 @@ const getEvent = catchAsync(async (req, res) => {
 });
 
 const updateEvent = catchAsync(async (req, res) => {
-  const event = await eventService.updateEventById(req.params.uid, req.body);
+  const event = await eventService.updateEventById(req.params.uid, req.file, req.body);
   res.send(event);
 });
 
