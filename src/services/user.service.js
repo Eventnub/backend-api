@@ -8,63 +8,108 @@ const createUser = async (userBody) => {
       email: userBody.email,
       password: userBody.password,
     });
+
+    await admin.auth().setCustomUserClaims(user.uid, { role: "user" });
+    const token = await admin.auth().createCustomToken(user.uid);
+    const result = await firebase.auth().signInWithCustomToken(token);
+    await result.user.sendEmailVerification();
+    await firebase.auth().signOut();
+
+    userBody.uid = user.uid;
+    userBody.createdAt = Date.now();
+    userBody.disabled = false;
+    delete userBody["password"];
+
+    await admin
+      .firestore()
+      .collection("users")
+      .doc(user.uid)
+      .set({ ...userBody });
+
+    return { ...userBody };
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.message);
   }
-
-  await admin.auth().setCustomUserClaims(user.uid, { role: "user" });
-  const token = await admin.auth().createCustomToken(user.uid);
-  const result = await firebase.auth().signInWithCustomToken(token);
-  await result.user.sendEmailVerification();
-  await firebase.auth().signOut();
-
-  userBody.uid = user.uid;
-  userBody.createdAt = Date.now();
-  userBody.disabled = false;
-  delete userBody["password"];
-
-  await admin
-    .firestore()
-    .collection("users")
-    .doc(user.uid)
-    .set({ ...userBody });
-
-  return { ...userBody };
 };
 
 const getUsers = async () => {
-  const snapshot = await admin.firestore().collection("users").get();
-  const users = snapshot.docs.map((doc) => doc.data());
-  return users;
+  try {
+    const snapshot = await admin.firestore().collection("users").get();
+    const users = snapshot.docs.map((doc) => doc.data());
+    return users;
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+  }
 };
 
 const getUserById = async (uid) => {
-  const user = await admin.firestore().collection("users").doc(uid).get();
-  return user.data();
+  try {
+    const user = await admin.firestore().collection("users").doc(uid).get();
+    return user.data();
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+  }
 };
 
 const getUserByEmail = async (email) => {
-  const snapshot = await admin
-    .firestore()
-    .collection("users")
-    .where("email", "==", email)
-    .get();
-  const user = snapshot.empty ? null : snapshot.docs[0].data();
-  return user;
+  try {
+    const snapshot = await admin
+      .firestore()
+      .collection("users")
+      .where("email", "==", email)
+      .get();
+    const user = snapshot.empty ? null : snapshot.docs[0].data();
+    return user;
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+  }
 };
 
 const updateUserById = async (uid, updateBody) => {
-  await admin
-    .firestore()
-    .collection("users")
-    .doc(uid)
-    .update({ ...updateBody });
-  return updateBody;
+  try {
+    await admin
+      .firestore()
+      .collection("users")
+      .doc(uid)
+      .update({ ...updateBody });
+    return updateBody;
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+  }
+};
+
+const saveUserSearchQuery = async (uid, searchQuery) => {
+  try {
+    const user = await getUserById(uid);
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, "User with uid not found");
+    }
+
+    let newSearchQueries = [];
+    if (user.searchQueries && Array.isArray(user.searchQueries)) {
+      newSearchQueries = [...user.searchQueries, searchQuery];
+    } else {
+      newSearchQueries = [searchQuery];
+    }
+
+    // Remove duplicate search queries
+    newSearchQueries = [...new Set(newSearchQueries)];
+
+    await admin.firestore().collection("users").doc(uid).update({
+      searchQueries: newSearchQueries,
+    });
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+  }
 };
 
 const deleteUserById = async (uid) => {
-  await admin.auth().deleteUser(uid);
-  await admin.firestore().collection("users").doc(uid).delete();
+  try {
+    await admin.auth().deleteUser(uid);
+    await admin.firestore().collection("users").doc(uid).delete();
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+  }
 };
 
 module.exports = {
@@ -73,5 +118,6 @@ module.exports = {
   getUserById,
   getUserByEmail,
   updateUserById,
+  saveUserSearchQuery,
   deleteUserById,
 };

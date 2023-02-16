@@ -40,4 +40,12 @@ router
     userController.deleteUser
   );
 
+  router
+  .route("/save-user-search-query")
+  .post(
+    Authentication, 
+    validate(userValidation.saveUserSearchQuery), 
+    userController.saveUserSearchQuery
+  )
+
 module.exports = router;

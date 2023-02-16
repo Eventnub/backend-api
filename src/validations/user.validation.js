@@ -36,6 +36,12 @@ const updateUser = {
   }),
 };
 
+const saveUserSearchQuery = {
+  body: Joi.object().keys({
+    searchQuery: Joi.string()
+  }),
+};
+
 const deleteUser = {
   params: Joi.object().keys({
     uid: Joi.string().required().custom(documentId),
@@ -47,5 +53,6 @@ module.exports = {
   getUsers,
   getUser,
   updateUser,
+  saveUserSearchQuery,
   deleteUser,
 };

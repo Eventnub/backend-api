@@ -1,7 +1,7 @@
-const httpStatus = require('http-status');
-const ApiError = require('../utils/ApiError');
-const catchAsync = require('../utils/catchAsync');
-const { userService } = require('../services');
+const httpStatus = require("http-status");
+const ApiError = require("../utils/ApiError");
+const catchAsync = require("../utils/catchAsync");
+const { userService } = require("../services");
 
 const createUser = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
@@ -16,7 +16,7 @@ const getUsers = catchAsync(async (req, res) => {
 const getUser = catchAsync(async (req, res) => {
   const user = await userService.getUserById(req.params.uid);
   if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
   }
   res.send(user);
 });
@@ -24,6 +24,11 @@ const getUser = catchAsync(async (req, res) => {
 const updateUser = catchAsync(async (req, res) => {
   const user = await userService.updateUserById(req.params.uid, req.body);
   res.send(user);
+});
+
+const saveUserSearchQuery = catchAsync(async (req, res) => {
+  await userService.saveUserSearchQuery(req.user.uid, req.body.searchQuery);
+  res.status(httpStatus.NO_CONTENT).send();
 });
 
 const deleteUser = catchAsync(async (req, res) => {
@@ -36,5 +41,6 @@ module.exports = {
   getUsers,
   getUser,
   updateUser,
+  saveUserSearchQuery,
   deleteUser,
 };
