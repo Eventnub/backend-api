@@ -8,8 +8,17 @@ const createEvent = {
     venue: Joi.string().required(),
     date: Joi.string().required(),
     time: Joi.string().required(),
-    artists: Joi.string().required(),
-    ticketPrice: Joi.number().required(),
+    artists: Joi.array().items(Joi.string().required()).required(),
+    tickets: Joi.array()
+      .items(
+        Joi.object()
+          .keys({
+            type: Joi.string().required(),
+            price: Joi.number().required(),
+          })
+          .min(1)
+      )
+      .required(),
     raffleCount: Joi.number().default(0),
     raffleWinners: Joi.array().items(Joi.object()).default([]),
   }),
@@ -38,8 +47,15 @@ const updateEvent = {
     venue: Joi.string(),
     date: Joi.string(),
     time: Joi.string(),
-    artists: Joi.string(),
-    ticketPrice: Joi.number(),
+    artists: Joi.array().items(Joi.string().required()),
+    tickets: Joi.array().items(
+      Joi.object()
+        .keys({
+          type: Joi.string().required(),
+          price: Joi.number().required(),
+        })
+        .min(1)
+    ),
     raffleCount: Joi.number(),
     raffleWinners: Joi.array().items(Joi.object()),
   }),

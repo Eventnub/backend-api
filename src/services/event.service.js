@@ -11,6 +11,12 @@ const createEvent = async (photoFile, eventBody) => {
   eventBody.photoUrl = photoUrl;
   eventBody.createdAt = Date.now();
 
+  // Add extra index field to each ticket
+  eventBody.tickets = eventBody.tickets.map((ticket, index) => ({
+    index,
+    ...ticket,
+  }));
+
   await admin
     .firestore()
     .collection("events")
@@ -42,6 +48,13 @@ const updateEventById = async (uid, updatePhotoFile, updateBody) => {
     const filename = `eventsPhotos/${uid}.jpg`;
     const photoUrl = await uploadFile(updatePhotoFile, filename);
     updateBody.photoUrl = photoUrl;
+  }
+
+  if (updateBody.tickets) {
+    updateBody.tickets = updateBody.tickets.map((ticket, index) => ({
+      index,
+      ...ticket,
+    }));
   }
 
   updateBody.updatedAt = Date.now();
