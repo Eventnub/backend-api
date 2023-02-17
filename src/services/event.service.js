@@ -1,5 +1,6 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
+const { getUserById } = require("./user.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { uploadFile, deleteFile } = require("./fileStorage.service");
 
@@ -77,10 +78,64 @@ const deleteEventById = async (uid) => {
   await admin.firestore().collection("events").doc(uid).delete();
 };
 
+const likeOrUnlikeEventById = async (eventId, userId, action) => {
+  const event = await getEventById(eventId);
+  if (!event) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Event with uid not found");
+  }
+
+  const user = await getUserById(userId);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  event.likers = event.likers ? event.likers : [];
+  user.likedEvents = user.likedEvents ? user.likedEvents : [];
+
+  const { arrayUnion, arrayRemove } = admin.firestore.FieldValue;
+
+  if (action === "like") {
+    if (!event.likers.includes(userId)) {
+      await admin
+        .firestore()
+        .collection("events")
+        .doc(eventId)
+        .update({ likers: arrayUnion(userId) });
+    }
+
+    if (!user.likedEvents.includes(eventId)) {
+      await admin
+        .firestore()
+        .collection("users")
+        .doc(userId)
+        .update({ likedEvents: arrayUnion(eventId) });
+    }
+  }
+
+  if (action === "unlike") {
+    if (event.likers.includes(userId)) {
+      await admin
+        .firestore()
+        .collection("events")
+        .doc(eventId)
+        .update({ likers: arrayRemove(userId) });
+    }
+
+    if (user.likedEvents.includes(eventId)) {
+      await admin
+        .firestore()
+        .collection("users")
+        .doc(userId)
+        .update({ likedEvents: arrayRemove(eventId) });
+    }
+  }
+};
+
 module.exports = {
   createEvent,
   getEvents,
   getEventById,
   updateEventById,
   deleteEventById,
+  likeOrUnlikeEventById,
 };

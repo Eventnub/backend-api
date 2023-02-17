@@ -12,25 +12,19 @@ router
   .post(
     Authentication,
     Authorization("admin"),
-    multerConfig.single('photo'),
+    multerConfig.single("photo"),
     validate(eventValidation.createEvent),
     eventController.createEvent
   )
-  .get(
-    validate(eventValidation.getEvents), 
-    eventController.getEvents
-  );
+  .get(validate(eventValidation.getEvents), eventController.getEvents);
 
 router
   .route("/:uid")
-  .get(
-    validate(eventValidation.getEvent), 
-    eventController.getEvent
-  )
+  .get(validate(eventValidation.getEvent), eventController.getEvent)
   .patch(
     Authentication,
     Authorization("admin"),
-    multerConfig.single('photo'),
+    multerConfig.single("photo"),
     validate(eventValidation.updateEvent),
     eventController.updateEvent
   )
@@ -39,6 +33,14 @@ router
     Authorization("admin"),
     validate(eventValidation.deleteEvent),
     eventController.deleteEvent
+  );
+
+router
+  .route("/like-or-unlike-event/:uid")
+  .post(
+    Authentication,
+    validate(eventValidation.likeOrUnlikeEvent),
+    eventController.likeOrUnlikeEvent
   );
 
 module.exports = router;

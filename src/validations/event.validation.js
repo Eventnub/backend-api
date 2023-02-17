@@ -68,10 +68,20 @@ const deleteEvent = {
   }),
 };
 
+const likeOrUnlikeEvent = {
+  params: Joi.object().keys({
+    uid: Joi.required().custom(documentId),
+  }),
+  body: Joi.object().keys({
+    action: Joi.string().valid("like", "unlike").required(),
+  }),
+};
+
 module.exports = {
   createEvent,
   getEvents,
   getEvent,
   updateEvent,
   deleteEvent,
+  likeOrUnlikeEvent,
 };

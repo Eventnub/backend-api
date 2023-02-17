@@ -22,12 +22,25 @@ const getEvent = catchAsync(async (req, res) => {
 });
 
 const updateEvent = catchAsync(async (req, res) => {
-  const event = await eventService.updateEventById(req.params.uid, req.file, req.body);
+  const event = await eventService.updateEventById(
+    req.params.uid,
+    req.file,
+    req.body
+  );
   res.send(event);
 });
 
 const deleteEvent = catchAsync(async (req, res) => {
   await eventService.deleteEventById(req.params.uid);
+  res.status(httpStatus.NO_CONTENT).send();
+});
+
+const likeOrUnlikeEvent = catchAsync(async (req, res) => {
+  await eventService.likeOrUnlikeEventById(
+    req.params.uid,
+    req.user.uid,
+    req.body.action
+  );
   res.status(httpStatus.NO_CONTENT).send();
 });
 
@@ -37,4 +50,5 @@ module.exports = {
   getEvent,
   updateEvent,
   deleteEvent,
+  likeOrUnlikeEvent,
 };
