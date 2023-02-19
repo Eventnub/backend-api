@@ -5,7 +5,10 @@ const createEvent = {
   body: Joi.object().keys({
     name: Joi.string().required(),
     description: Joi.string().required(),
+    type: Joi.string().valid("Paid", "Free").required(),
     venue: Joi.string().required(),
+    state: Joi.string().required(),
+    country: Joi.string().required(),
     date: Joi.string().required(),
     time: Joi.string().required(),
     artists: Joi.array().items(Joi.string().required()).required(),
@@ -44,7 +47,10 @@ const updateEvent = {
   body: Joi.object().keys({
     name: Joi.string(),
     description: Joi.string(),
+    type: Joi.string().valid("Paid", "Free"),
     venue: Joi.string(),
+    state: Joi.string(),
+    country: Joi.string(),
     date: Joi.string(),
     time: Joi.string(),
     artists: Joi.array().items(Joi.string().required()),
