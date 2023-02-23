@@ -23,6 +23,7 @@ const createEvent = {
           .min(1)
       )
       .required(),
+    isArchived: Joi.boolean().default(false),
     raffleCount: Joi.number().default(0),
     raffleWinners: Joi.array().items(Joi.object()).default([]),
   }),
@@ -64,6 +65,7 @@ const updateEvent = {
         })
         .min(1)
     ),
+    isArchived: Joi.boolean(),
     raffleCount: Joi.number(),
     raffleWinners: Joi.array().items(Joi.object()),
   }),
