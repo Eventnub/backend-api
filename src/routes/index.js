@@ -4,6 +4,7 @@ const adminRoute = require("./admin.route");
 const userRoute = require("./user.route");
 const eventRoute = require("./event.route");
 const questionRoute = require("./question.route");
+const inviteRoute = require("./invite.route");
 
 const router = express.Router();
 
@@ -27,6 +28,10 @@ const routes = [
   {
     path: "/questions",
     route: questionRoute,
+  },
+  {
+    path: "/invites",
+    route: inviteRoute,
   },
 ];
 

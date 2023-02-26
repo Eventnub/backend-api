@@ -1,28 +1,48 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
+const { getInviteByEmail, updateInviteById } = require("./invite.service");
 const { admin, firebase } = require("./firebase.service");
 
-/*
- This method has no endpoint URL. 
- It was created to enable adding of admins programmatically
-*/
-const createAdmin = async (adminBody) => {
-  const user = await admin.auth().createUser({
-    email: adminBody.email,
-    password: adminBody.password,
-  });
-  await admin.auth().setCustomUserClaims(user.uid, { role: "admin" });
+const register = async (adminBody) => {
+  try {
+    const invite = await getInviteByEmail(adminBody.email);
 
-  adminBody.uid = user.uid;
-  delete adminBody["password"];
+    if (!invite) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        `The email has not being invited`
+      );
+    }
 
-  await admin
-    .firestore()
-    .collection("admins")
-    .doc(user.uid)
-    .set({ ...adminBody });
+    if (invite.status !== "pending") {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "This invite has already been accepted"
+      );
+    }
 
-  return { ...adminBody };
+    const user = await admin.auth().createUser({
+      email: adminBody.email,
+      password: adminBody.password,
+    });
+    await admin.auth().setCustomUserClaims(user.uid, { role: invite.role });
+
+    adminBody.uid = user.uid;
+    adminBody.createdAt = Date.now();
+    delete adminBody["password"];
+
+    await admin
+      .firestore()
+      .collection("admins")
+      .doc(user.uid)
+      .set({ ...adminBody });
+
+    await updateInviteById(invite.uid, { status: "accepted" });
+
+    return { ...adminBody };
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+  }
 };
 
 const login = async (email, password) => {
@@ -37,6 +57,6 @@ const login = async (email, password) => {
 };
 
 module.exports = {
-  createAdmin,
+  register,
   login,
 };
