@@ -3,7 +3,7 @@ const ApiError = require("../utils/ApiError");
 const { getUserByEmail } = require("./user.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 
-const createInvite = async (inviter, inviteBody) => {
+const createInvite = async (inviterId, inviteBody) => {
   try {
     const user = await getUserByEmail(inviteBody.email);
 
@@ -28,7 +28,7 @@ const createInvite = async (inviter, inviteBody) => {
     const uid = generateFirebaseId("invites");
     inviteBody.uid = uid;
     inviteBody.createdAt = Date.now();
-    inviteBody.inviter = inviter;
+    inviteBody.inviterId = inviterId;
     inviteBody.status = "pending";
 
     await admin
