@@ -24,8 +24,12 @@ const createEvent = {
       )
       .required(),
     isArchived: Joi.boolean().default(false),
-    raffleCount: Joi.number().default(0),
-    raffleWinners: Joi.array().items(Joi.object()).default([]),
+    hasQuiz: Joi.boolean().default(false),
+    quizStartTimestamp: Joi.number().default(0),
+    quizEndTimestamp: Joi.number().default(0),
+    hasRaffleDraw: Joi.boolean().default(false),
+    raffleDrawStartTimestamp: Joi.number().default(0),
+    raffleDrawEndTimestamp: Joi.number().default(0),
   }),
   file: Joi.string().required(),
 };
@@ -66,8 +70,12 @@ const updateEvent = {
         .min(1)
     ),
     isArchived: Joi.boolean(),
-    raffleCount: Joi.number(),
-    raffleWinners: Joi.array().items(Joi.object()),
+    hasQuiz: Joi.boolean(),
+    quizStartTimestamp: Joi.number(),
+    quizEndTimestamp: Joi.number(),
+    hasRaffleDraw: Joi.boolean(),
+    raffleDrawStartTimestamp: Joi.number(),
+    raffleDrawEndTimestamp: Joi.number(),
   }),
   file: Joi.string(),
 };
