@@ -36,11 +36,19 @@ router
   );
 
 router
-  .route("/event/:eventId")
+  .route("/get-event-quiz/:eventId")
   .get(
     Authentication,
-    validate(questionValidation.getQuestionsByEventId),
-    questionController.getQuestionsByEventId
+    validate(questionValidation.getEventQuiz),
+    questionController.getEventQuiz
+  );
+
+router
+  .route("/submit-event-quiz-answers/:eventId")
+  .post(
+    Authentication,
+    validate(questionValidation.submitEventQuizAnswers),
+    questionController.submitEventQuizAnswers
   );
 
 module.exports = router;

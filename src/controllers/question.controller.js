@@ -8,14 +8,6 @@ const createQuestion = catchAsync(async (req, res) => {
   res.status(httpStatus.CREATED).send(question);
 });
 
-const getQuestionsByEventId = catchAsync(async (req, res) => {
-  const questions = await questionService.getQuestionsByEventId(
-    req.params.eventId,
-    req.user.role
-  );
-  res.send(questions);
-});
-
 const getQuestion = catchAsync(async (req, res) => {
   const question = await questionService.getQuestionById(
     req.params.uid,
@@ -40,10 +32,28 @@ const deleteQuestion = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const getEventQuiz = catchAsync(async (req, res) => {
+  const questions = await questionService.getEventQuizByEventId(
+    req.params.eventId,
+    req.user.role
+  );
+  res.send(questions);
+});
+
+const submitEventQuizAnswers = catchAsync(async (req, res) => {
+  const result = await questionService.submitEventQuizAnswersByEventId(
+    req.user.uid,
+    req.params.eventId,
+    req.body
+  );
+  res.send(result);
+});
+
 module.exports = {
   createQuestion,
-  getQuestionsByEventId,
   getQuestion,
   updateQuestion,
   deleteQuestion,
+  getEventQuiz,
+  submitEventQuizAnswers,
 };

@@ -10,12 +10,6 @@ const createQuestion = {
   }),
 };
 
-const getQuestionsByEventId = {
-  params: Joi.object().keys({
-    eventId: Joi.required().custom(documentId),
-  }),
-};
-
 const getQuestion = {
   params: Joi.object().keys({
     uid: Joi.required().custom(documentId),
@@ -39,10 +33,34 @@ const deleteQuestion = {
   }),
 };
 
+const getEventQuiz = {
+  params: Joi.object().keys({
+    eventId: Joi.required().custom(documentId),
+  }),
+};
+
+const submitEventQuizAnswers = {
+  params: Joi.object().keys({
+    eventId: Joi.required().custom(documentId),
+  }),
+  body: Joi.object().keys({
+    answers: Joi.array()
+      .items(
+        Joi.object().keys({
+          questionId: Joi.string().required(),
+          answer: Joi.string().required(),
+        })
+      )
+      .required()
+      .min(3),
+  }),
+};
+
 module.exports = {
   createQuestion,
-  getQuestionsByEventId,
   getQuestion,
   updateQuestion,
   deleteQuestion,
+  getEventQuiz,
+  submitEventQuizAnswers,
 };
