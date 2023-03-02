@@ -1,5 +1,6 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
+const shuffle = require("../utils/shuffle");
 const { getEventById } = require("./event.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 
@@ -80,19 +81,38 @@ const deleteQuestionById = async (uid) => {
   await admin.firestore().collection("questions").doc(uid).delete();
 };
 
+const getQuizResultByUserIdAndEventId = async (userId, eventId) => {
+  const snapshot = await admin
+    .firestore()
+    .collection("quizResults")
+    .where("userId", "==", userId)
+    .where("eventId", "==", eventId)
+    .get();
+  const quizResult = snapshot.empty ? null : snapshot.docs.at(0).data();
+  return quizResult;
+};
+
 const getEventQuizByEventId = async (eventId, role) => {
   const snapshot = await admin
     .firestore()
     .collection("questions")
     .where("eventId", "==", eventId)
     .get();
-  const questions = snapshot.docs.map((doc) => {
+  let questions = snapshot.docs.map((doc) => {
     const question = doc.data();
     if (!["admin"].includes(role)) {
       delete question["correctAnswer"];
     }
     return question;
   });
+
+  if (!["admin"].includes(role)) {
+    questions = shuffle(questions);
+    if (questions.length > 3) {
+      questions = questions.slice(0, 3);
+    }
+  }
+
   return questions;
 };
 
@@ -101,7 +121,23 @@ const submitEventQuizAnswersByEventId = async (
   eventId,
   answersBody
 ) => {
+  const quizResult = await getQuizResultByUserIdAndEventId(userId, eventId);
+
+  if (quizResult) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "You've already taken this quiz"
+    );
+  }
+
   const eventQuiz = await getEventQuizByEventId(eventId, "admin");
+
+  if (!(eventQuiz.length > 0)) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      "There are no questions for the event id"
+    );
+  }
 
   const questionAndAnswers = [];
   let numberOfPasses = 0;
