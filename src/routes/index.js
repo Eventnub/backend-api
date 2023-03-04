@@ -5,6 +5,7 @@ const userRoute = require("./user.route");
 const eventRoute = require("./event.route");
 const questionRoute = require("./question.route");
 const inviteRoute = require("./invite.route");
+const paymentRoute = require("./payment.route");
 
 const router = express.Router();
 
@@ -32,6 +33,10 @@ const routes = [
   {
     path: "/invites",
     route: inviteRoute,
+  },
+  {
+    path: "/payments",
+    route: paymentRoute,
   },
 ];
 
