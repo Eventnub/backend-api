@@ -4,6 +4,7 @@ const adminRoute = require("./admin.route");
 const userRoute = require("./user.route");
 const eventRoute = require("./event.route");
 const questionRoute = require("./question.route");
+const raffleDrawRoute = require("./raffleDraw.route");
 const inviteRoute = require("./invite.route");
 const paymentRoute = require("./payment.route");
 
@@ -29,6 +30,10 @@ const routes = [
   {
     path: "/questions",
     route: questionRoute,
+  },
+  {
+    path: "/raffle-draws",
+    route: raffleDrawRoute,
   },
   {
     path: "/invites",
