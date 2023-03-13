@@ -17,6 +17,7 @@ const createUser = async (userBody) => {
     await firebase.auth().signOut();
 
     userBody.uid = user.uid;
+    userBody.role = "user";
     userBody.createdAt = Date.now();
     userBody.disabled = false;
     delete userBody["password"];
@@ -68,12 +69,22 @@ const getUserByEmail = async (email) => {
 
 const updateUserById = async (uid, updateBody) => {
   try {
+    updateBody.updatedAt = Date.now();
     await admin
       .firestore()
       .collection("users")
       .doc(uid)
       .update({ ...updateBody });
     return updateBody;
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+  }
+};
+
+const deleteUserById = async (uid) => {
+  try {
+    await admin.auth().deleteUser(uid);
+    await admin.firestore().collection("users").doc(uid).delete();
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.message);
   }
@@ -137,10 +148,15 @@ const saveUserSearchQuery = async (uid, searchQuery) => {
   }
 };
 
-const deleteUserById = async (uid) => {
+const changeUserToHost = async (uid, updateBody) => {
   try {
-    await admin.auth().deleteUser(uid);
-    await admin.firestore().collection("users").doc(uid).delete();
+    await admin.auth().setCustomUserClaims(uid, { role: "host" });
+
+    updateBody.role = "host";
+    updateBody.becameHostAt = Date.now();
+
+    await admin.firestore().collection("users").doc(uid).update(updateBody);
+    return updateBody;
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.message);
   }
@@ -152,7 +168,8 @@ module.exports = {
   getUserById,
   getUserByEmail,
   updateUserById,
+  deleteUserById,
   uploadUserProfilePhoto,
   saveUserSearchQuery,
-  deleteUserById,
+  changeUserToHost,
 };

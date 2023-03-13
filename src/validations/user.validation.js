@@ -36,6 +36,12 @@ const updateUser = {
   }),
 };
 
+const deleteUser = {
+  params: Joi.object().keys({
+    uid: Joi.string().required().custom(documentId),
+  }),
+};
+
 const uploadUserProfilePhoto = {
   file: Joi.string().required(),
 };
@@ -46,9 +52,11 @@ const saveUserSearchQuery = {
   }),
 };
 
-const deleteUser = {
-  params: Joi.object().keys({
-    uid: Joi.string().required().custom(documentId),
+const changeUserToHost = {
+  body: Joi.object().keys({
+    bankName: Joi.string().required(),
+    accountNumber: Joi.string().required(),
+    accountName: Joi.string().required(),
   }),
 };
 
@@ -57,7 +65,8 @@ module.exports = {
   getUsers,
   getUser,
   updateUser,
+  deleteUser,
   uploadUserProfilePhoto,
   saveUserSearchQuery,
-  deleteUser,
+  changeUserToHost,
 };

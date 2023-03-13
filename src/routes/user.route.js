@@ -54,4 +54,12 @@ router
     userController.saveUserSearchQuery
   );
 
+router
+  .route("/change-user-to-host")
+  .post(
+    Authentication,
+    validate(userValidation.changeUserToHost),
+    userController.changeUserToHost
+  );
+
 module.exports = router;

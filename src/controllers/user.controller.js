@@ -26,8 +26,16 @@ const updateUser = catchAsync(async (req, res) => {
   res.send(user);
 });
 
+const deleteUser = catchAsync(async (req, res) => {
+  await userService.deleteUserById(req.params.uid);
+  res.status(httpStatus.NO_CONTENT).send();
+});
+
 const uploadUserProfilePhoto = catchAsync(async (req, res) => {
-  const updatedBody = await userService.uploadUserProfilePhoto(req.user.uid, req.file);
+  const updatedBody = await userService.uploadUserProfilePhoto(
+    req.user.uid,
+    req.file
+  );
   res.send(updatedBody);
 });
 
@@ -36,9 +44,9 @@ const saveUserSearchQuery = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
-const deleteUser = catchAsync(async (req, res) => {
-  await userService.deleteUserById(req.params.uid);
-  res.status(httpStatus.NO_CONTENT).send();
+const changeUserToHost = catchAsync(async (req, res) => {
+  const result = await userService.changeUserToHost(req.user.uid, req.body);
+  res.send(result);
 });
 
 module.exports = {
@@ -46,7 +54,8 @@ module.exports = {
   getUsers,
   getUser,
   updateUser,
+  deleteUser,
   uploadUserProfilePhoto,
   saveUserSearchQuery,
-  deleteUser,
+  changeUserToHost,
 };
