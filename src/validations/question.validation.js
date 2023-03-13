@@ -56,6 +56,12 @@ const submitEventQuizAnswers = {
   }),
 };
 
+const getEventQuizWinners = {
+  params: Joi.object().keys({
+    eventId: Joi.required().custom(documentId),
+  }),
+};
+
 module.exports = {
   createQuestion,
   getQuestion,
@@ -63,4 +69,5 @@ module.exports = {
   deleteQuestion,
   getEventQuiz,
   submitEventQuizAnswers,
+  getEventQuizWinners
 };

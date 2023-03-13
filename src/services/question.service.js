@@ -92,6 +92,26 @@ const getQuizResultByUserIdAndEventId = async (userId, eventId) => {
   return quizResult;
 };
 
+const getQuizResultsByEventId = async (eventId) => {
+  const snapshot = await admin
+    .firestore()
+    .collection("quizResults")
+    .where("eventId", "==", eventId)
+    .get();
+  const quizResults = snapshot.docs.map((doc) => doc.data());
+  return quizResults;
+};
+
+const getQuizWinnersByEventId = async (eventId) => {
+  const snapshot = await admin
+    .firestore()
+    .collection("quizWinners")
+    .where("eventId", "==", eventId)
+    .get();
+  const quizWinners = snapshot.empty ? null : snapshot.docs.at(0).data();
+  return quizWinners;
+};
+
 const getEventQuizByEventId = async (eventId, role) => {
   const snapshot = await admin
     .firestore()
@@ -127,6 +147,14 @@ const submitEventQuizAnswersByEventId = async (
     throw new ApiError(
       httpStatus.BAD_REQUEST,
       "You've already taken this quiz"
+    );
+  }
+
+  const event = await getEventById(eventId);
+  if (event && Date.now() > event.quizEndTimestamp) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Submission of quiz answers has ended"
     );
   }
 
@@ -180,6 +208,55 @@ const submitEventQuizAnswersByEventId = async (
   return result;
 };
 
+const getEventQuizWinnersByEventId = async (eventId, role) => {
+  let quizWinners = await getQuizWinnersByEventId(eventId);
+
+  if (!quizWinners) {
+    const event = await getEventById(eventId);
+    if (event && event.quizEndTimestamp > Date.now()) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "Submission of quiz answers has not ended yet"
+      );
+    }
+
+    const quizResults = await getQuizResultsByEventId(eventId);
+
+    if (quizResults.length === 0) {
+      throw new ApiError(
+        httpStatus.NOT_FOUND,
+        "There are no results for this event's quiz"
+      );
+    }
+
+    const sortedQuizResults = quizResults.sort((a, b) => {
+      if (a.numberOfPasses < b.numberOfPasses) return 1;
+      if (a.numberOfPasses > b.numberOfPasses) return -1;
+    });
+
+    const slicedQuizResults = sortedQuizResults.slice(0, 3);
+
+    const winners = slicedQuizResults.map((result) => ({
+      userId: result.userId,
+      resultId: result.uid,
+    }));
+
+    // TODO: Send mails containing ticket to winners
+
+    const uid = generateFirebaseId("quizWinners");
+    quizWinners = {
+      uid,
+      eventId,
+      winners,
+      createdAt: Date.now(),
+    };
+
+    await admin.firestore().collection("quizWinners").doc(uid).set(quizWinners);
+  }
+
+  return quizWinners;
+};
+
 module.exports = {
   createQuestion,
   getQuestionById,
@@ -187,4 +264,5 @@ module.exports = {
   deleteQuestionById,
   getEventQuizByEventId,
   submitEventQuizAnswersByEventId,
+  getEventQuizWinnersByEventId,
 };

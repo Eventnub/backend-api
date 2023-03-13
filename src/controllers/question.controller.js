@@ -49,6 +49,14 @@ const submitEventQuizAnswers = catchAsync(async (req, res) => {
   res.send(result);
 });
 
+const getEventQuizWinners = catchAsync(async (req, res) => {
+  const winners = await questionService.getEventQuizWinnersByEventId(
+    req.params.eventId,
+    req.user.role
+  );
+  res.send(winners);
+});
+
 module.exports = {
   createQuestion,
   getQuestion,
@@ -56,4 +64,5 @@ module.exports = {
   deleteQuestion,
   getEventQuiz,
   submitEventQuizAnswers,
+  getEventQuizWinners
 };
