@@ -4,13 +4,14 @@ const { getUserById } = require("./user.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { uploadFile, deleteFile } = require("./fileStorage.service");
 
-const createEvent = async (photoFile, eventBody) => {
+const createEvent = async (creatorId, photoFile, eventBody) => {
   const uid = generateFirebaseId("events");
   const filename = `eventsPhotos/${uid}.jpg`;
   const photoUrl = await uploadFile(photoFile, filename);
   eventBody.uid = uid;
   eventBody.photoUrl = photoUrl;
   eventBody.createdAt = Date.now();
+  eventBody.creatorId = creatorId;
 
   // Add extra index field to each ticket
   eventBody.tickets = eventBody.tickets.map((ticket, index) => ({
