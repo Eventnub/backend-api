@@ -150,6 +150,11 @@ const saveUserSearchQuery = async (uid, searchQuery) => {
 
 const changeUserToHost = async (uid, updateBody) => {
   try {
+    const user = await getUserById(uid);
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, "User with uid not found");
+    }
+
     await admin.auth().setCustomUserClaims(uid, { role: "host" });
 
     updateBody.role = "host";
