@@ -31,11 +31,11 @@ const Authentication = (req, res, next) => {
   });
 };
 
-const Authorization = (roleQuery) => {
+const Authorization = (roles) => {
   return (req, res, next) => {
     const { role } = req.user;
 
-    if (roleQuery !== role) {
+    if (!roles.includes(role)) {
       return next(new ApiError(httpStatus.UNAUTHORIZED, "Unauthorized"));
     }
 

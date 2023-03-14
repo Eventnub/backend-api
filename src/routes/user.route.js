@@ -11,13 +11,13 @@ router
   .route("/")
   .post(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin"]),
     validate(userValidation.createUser),
     userController.createUser
   )
   .get(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin"]),
     validate(userValidation.getUsers),
     userController.getUsers
   );
@@ -32,7 +32,7 @@ router
   )
   .delete(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin"]),
     validate(userValidation.deleteUser),
     userController.deleteUser
   );

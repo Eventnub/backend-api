@@ -4,7 +4,10 @@ const catchAsync = require("../utils/catchAsync");
 const { raffleDrawService } = require("../services");
 
 const createRaffleDraw = catchAsync(async (req, res) => {
-  const raffleDraw = await raffleDrawService.createRaffleDraw(req.body);
+  const raffleDraw = await raffleDrawService.createRaffleDraw(
+    req.user,
+    req.body
+  );
   res.status(httpStatus.CREATED).send(raffleDraw);
 });
 
@@ -21,6 +24,7 @@ const getRaffleDraw = catchAsync(async (req, res) => {
 
 const updateRaffleDraw = catchAsync(async (req, res) => {
   const raffleDraw = await raffleDrawService.updateRaffleDrawById(
+    req.user,
     req.params.uid,
     req.body
   );
@@ -28,7 +32,7 @@ const updateRaffleDraw = catchAsync(async (req, res) => {
 });
 
 const deleteRaffleDraw = catchAsync(async (req, res) => {
-  await raffleDrawService.deleteRaffleDrawById(req.params.uid);
+  await raffleDrawService.deleteRaffleDrawById(req.user, req.params.uid);
   res.status(httpStatus.NO_CONTENT).send();
 });
 
@@ -64,5 +68,5 @@ module.exports = {
   deleteRaffleDraw,
   getEventRaffleDraw,
   submitEventRaffleDrawChoice,
-  getEventRaffleDrawWinners
+  getEventRaffleDrawWinners,
 };

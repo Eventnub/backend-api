@@ -4,12 +4,19 @@ const shuffle = require("../utils/shuffle");
 const { getEventById } = require("./event.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 
-const createQuestion = async (questionBody) => {
+const createQuestion = async (creator, questionBody) => {
   const event = await getEventById(questionBody.eventId);
   if (!event) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
       "Event with the specified id not found"
+    );
+  }
+
+  if (!["admin"].includes(creator.role) && event.creatorId !== creator.uid) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Hosts can't add question for events they didn't create"
     );
   }
 
@@ -47,10 +54,18 @@ const getQuestionById = async (uid, role) => {
   return question;
 };
 
-const updateQuestionById = async (uid, updateBody) => {
+const updateQuestionById = async (updater, uid, updateBody) => {
   const question = await getQuestionById(uid);
   if (!question) {
     throw new ApiError(httpStatus.NOT_FOUND, "Question with uid not found");
+  }
+
+  const event = await getEventById(question.eventId);
+  if (!["admin"].includes(updater.role) && event.creatorId !== updater.uid) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Hosts can't update question for events they didn't create"
+    );
   }
 
   const answerOptions = updateBody.answerOptions
@@ -77,7 +92,20 @@ const updateQuestionById = async (uid, updateBody) => {
   return updateBody;
 };
 
-const deleteQuestionById = async (uid) => {
+const deleteQuestionById = async (deleter, uid) => {
+  const question = await getQuestionById(uid);
+  if (!question) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Question with uid not found");
+  }
+
+  const event = await getEventById(question.eventId);
+  if (!["admin"].includes(deleter.role) && event.creatorId !== deleter.uid) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Hosts can't delete question for events they didn't create"
+    );
+  }
+
   await admin.firestore().collection("questions").doc(uid).delete();
 };
 

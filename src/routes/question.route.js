@@ -10,7 +10,7 @@ router
   .route("/")
   .post(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin", "host"]),
     validate(questionValidation.createQuestion),
     questionController.createQuestion
   );
@@ -24,13 +24,13 @@ router
   )
   .patch(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin", "host"]),
     validate(questionValidation.updateQuestion),
     questionController.updateQuestion
   )
   .delete(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin", "host"]),
     validate(questionValidation.deleteQuestion),
     questionController.deleteQuestion
   );

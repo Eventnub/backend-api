@@ -49,10 +49,17 @@ const getEventById = async (uid) => {
   return event.data();
 };
 
-const updateEventById = async (uid, updatePhotoFile, updateBody) => {
+const updateEventById = async (updater, uid, updatePhotoFile, updateBody) => {
   const event = await getEventById(uid);
   if (!event) {
     throw new ApiError(httpStatus.NOT_FOUND, "Event with uid not found");
+  }
+
+  if (!["admin"].includes(updater.role) && event.creatorId !== updater.uid) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Hosts can't update events they didn't create"
+    );
   }
 
   if (updatePhotoFile) {
@@ -79,10 +86,17 @@ const updateEventById = async (uid, updatePhotoFile, updateBody) => {
   return updateBody;
 };
 
-const deleteEventById = async (uid) => {
+const deleteEventById = async (deleter, uid) => {
   const event = await getEventById(uid);
   if (!event) {
     throw new ApiError(httpStatus.NOT_FOUND, "Event with uid not found");
+  }
+
+  if (!["admin"].includes(deleter.role) && event.creatorId !== deleter.uid) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Hosts can't delete events they didn't create"
+    );
   }
 
   await deleteFile(event.photoUrl);
@@ -169,5 +183,5 @@ module.exports = {
   updateEventById,
   deleteEventById,
   likeOrUnlikeEventById,
-  approveEventById
+  approveEventById,
 };

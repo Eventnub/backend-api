@@ -4,7 +4,7 @@ const catchAsync = require("../utils/catchAsync");
 const { questionService } = require("../services");
 
 const createQuestion = catchAsync(async (req, res) => {
-  const question = await questionService.createQuestion(req.body);
+  const question = await questionService.createQuestion(req.user, req.body);
   res.status(httpStatus.CREATED).send(question);
 });
 
@@ -21,6 +21,7 @@ const getQuestion = catchAsync(async (req, res) => {
 
 const updateQuestion = catchAsync(async (req, res) => {
   const question = await questionService.updateQuestionById(
+    req.user,
     req.params.uid,
     req.body
   );
@@ -28,7 +29,7 @@ const updateQuestion = catchAsync(async (req, res) => {
 });
 
 const deleteQuestion = catchAsync(async (req, res) => {
-  await questionService.deleteQuestionById(req.params.uid);
+  await questionService.deleteQuestionById(req.user, req.params.uid);
   res.status(httpStatus.NO_CONTENT).send();
 });
 
@@ -64,5 +65,5 @@ module.exports = {
   deleteQuestion,
   getEventQuiz,
   submitEventQuizAnswers,
-  getEventQuizWinners
+  getEventQuizWinners,
 };

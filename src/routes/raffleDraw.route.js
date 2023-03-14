@@ -10,7 +10,7 @@ router
   .route("/")
   .post(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin", "host"]),
     validate(raffleDrawValidation.createRaffleDraw),
     raffleDrawController.createRaffleDraw
   );
@@ -24,13 +24,13 @@ router
   )
   .patch(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin", "host"]),
     validate(raffleDrawValidation.updateRaffleDraw),
     raffleDrawController.updateRaffleDraw
   )
   .delete(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin", "host"]),
     validate(raffleDrawValidation.deleteRaffleDraw),
     raffleDrawController.deleteRaffleDraw
   );

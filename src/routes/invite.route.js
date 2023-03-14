@@ -10,23 +10,23 @@ router
   .route("/")
   .post(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin"]),
     validate(inviteValidation.createInvite),
     inviteController.createInvite
   )
-  .get(Authentication, Authorization("admin"), inviteController.getInvites);
+  .get(Authentication, Authorization(["admin"]), inviteController.getInvites);
 
 router
   .route("/:uid")
   .get(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin"]),
     validate(inviteValidation.getInvite),
     inviteController.getInvite
   )
   .delete(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin"]),
     validate(inviteValidation.deleteInvite),
     inviteController.deleteInvite
   );

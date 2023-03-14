@@ -4,12 +4,19 @@ const shuffle = require("../utils/shuffle");
 const { getEventById } = require("./event.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 
-const createRaffleDraw = async (raffleDrawBody) => {
+const createRaffleDraw = async (creator, raffleDrawBody) => {
   const event = await getEventById(raffleDrawBody.eventId);
   if (!event) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
       "Event with the specified id not found"
+    );
+  }
+
+  if (!["admin"].includes(creator.role) && event.creatorId !== creator.uid) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Hosts can't add raffle draw for events they didn't create"
     );
   }
 
@@ -65,10 +72,18 @@ const getRaffleDrawById = async (uid, role) => {
   return raffleDraw;
 };
 
-const updateRaffleDrawById = async (uid, updateBody) => {
+const updateRaffleDrawById = async (updater, uid, updateBody) => {
   const raffleDraw = await getRaffleDrawById(uid);
   if (!raffleDraw) {
     throw new ApiError(httpStatus.NOT_FOUND, "Raffle draw with uid not found");
+  }
+
+  const event = await getEventById(raffleDraw.eventId);
+  if (!["admin"].includes(updater.role) && event.creatorId !== updater.uid) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Hosts can't update raffle draw for events they didn't create"
+    );
   }
 
   const firstNumber = updateBody.firstNumber
@@ -102,7 +117,20 @@ const updateRaffleDrawById = async (uid, updateBody) => {
   return updateBody;
 };
 
-const deleteRaffleDrawById = async (uid) => {
+const deleteRaffleDrawById = async (deleter, uid) => {
+  const raffleDraw = await getRaffleDrawById(uid);
+  if (!raffleDraw) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Raffle draw with uid not found");
+  }
+
+  const event = await getEventById(raffleDraw.eventId);
+  if (!["admin"].includes(deleter.role) && event.creatorId !== deleter.uid) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Hosts can't delete raffle draw for events they didn't create"
+    );
+  }
+
   await admin.firestore().collection("raffleDraws").doc(uid).delete();
 };
 

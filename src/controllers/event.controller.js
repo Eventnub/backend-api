@@ -28,6 +28,7 @@ const getEvent = catchAsync(async (req, res) => {
 
 const updateEvent = catchAsync(async (req, res) => {
   const event = await eventService.updateEventById(
+    req.user,
     req.params.uid,
     req.file,
     req.body
@@ -36,7 +37,7 @@ const updateEvent = catchAsync(async (req, res) => {
 });
 
 const deleteEvent = catchAsync(async (req, res) => {
-  await eventService.deleteEventById(req.params.uid);
+  await eventService.deleteEventById(req.user, req.params.uid);
   res.status(httpStatus.NO_CONTENT).send();
 });
 

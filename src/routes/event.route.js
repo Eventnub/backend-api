@@ -11,7 +11,7 @@ router
   .route("/")
   .post(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin", "host"]),
     multerConfig.single("photo"),
     validate(eventValidation.createEvent),
     eventController.createEvent
@@ -23,14 +23,14 @@ router
   .get(validate(eventValidation.getEvent), eventController.getEvent)
   .patch(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin", "host"]),
     multerConfig.single("photo"),
     validate(eventValidation.updateEvent),
     eventController.updateEvent
   )
   .delete(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin", "host"]),
     validate(eventValidation.deleteEvent),
     eventController.deleteEvent
   );
@@ -47,7 +47,7 @@ router
   .route("/approve-event/:eventId")
   .patch(
     Authentication,
-    Authorization("admin"),
+    Authorization(["admin"]),
     validate(eventValidation.approveEvent),
     eventController.approveEvent
   );
