@@ -234,7 +234,7 @@ const getEventQuizWinnersByEventId = async (eventId, role) => {
       if (a.numberOfPasses > b.numberOfPasses) return -1;
     });
 
-    const slicedQuizResults = sortedQuizResults.slice(0, 3);
+    const slicedQuizResults = sortedQuizResults.slice(0, 5);
 
     const winners = slicedQuizResults.map((result) => ({
       userId: result.userId,

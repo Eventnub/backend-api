@@ -178,10 +178,83 @@ const submitEventRaffleDrawChoiceByEventId = async (
     submittedAt: Date.now(),
   };
 
-  await admin.firestore().collection("raffleDrawChoices").doc(uid).set(result);
+  await admin.firestore().collection("raffleDrawResults").doc(uid).set(result);
   delete result["correctMatches"];
 
   return result;
+};
+
+const getRaffleDrawWinnersByEventId = async (eventId) => {
+  const snapshot = await admin
+    .firestore()
+    .collection("raffleDrawWinners")
+    .where("eventId", "==", eventId)
+    .get();
+  const raffleDrawWinners = snapshot.empty ? null : snapshot.docs.at(0).data();
+  return raffleDrawWinners;
+};
+
+const getRaffleDrawResultsByEventId = async (eventId) => {
+  const snapshot = await admin
+    .firestore()
+    .collection("raffleDrawResults")
+    .where("eventId", "==", eventId)
+    .get();
+  const raffleDrawResults = snapshot.docs.map((doc) => doc.data());
+  return raffleDrawResults;
+};
+
+const getEventRaffleDrawWinnersByEventId = async (eventId, role) => {
+  let raffleDrawWinners = await getRaffleDrawWinnersByEventId(eventId);
+
+  if (!raffleDrawWinners) {
+    const event = await getEventById(eventId);
+    if (event && event.raffleDrawEndTimestamp > Date.now()) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "Submission of raffle draw choices has not ended yet"
+      );
+    }
+
+    const raffleDrawResults = await getRaffleDrawResultsByEventId(eventId);
+
+    if (raffleDrawResults.length === 0) {
+      throw new ApiError(
+        httpStatus.NOT_FOUND,
+        "There are no results for this event's raffle draw"
+      );
+    }
+
+    const sortedRaffleDrawResults = raffleDrawResults.sort((a, b) => {
+      if (a.numberOfCorrectMatches < b.numberOfCorrectMatches) return 1;
+      if (a.numberOfCorrectMatches > b.numberOfCorrectMatches) return -1;
+    });
+
+    const slicedRaffleDrawResults = sortedRaffleDrawResults.slice(0, 5);
+
+    const winners = slicedRaffleDrawResults.map((result) => ({
+      userId: result.userId,
+      resultId: result.uid,
+    }));
+
+    // TODO: Send mails containing ticket to winners
+
+    const uid = generateFirebaseId("raffleDrawWinners");
+    raffleDrawWinners = {
+      uid,
+      eventId,
+      winners,
+      createdAt: Date.now(),
+    };
+
+    await admin
+      .firestore()
+      .collection("raffleDrawWinners")
+      .doc(uid)
+      .set(raffleDrawWinners);
+  }
+
+  return raffleDrawWinners;
 };
 
 module.exports = {
@@ -191,4 +264,5 @@ module.exports = {
   deleteRaffleDrawById,
   getEventRaffleDrawByEventId,
   submitEventRaffleDrawChoiceByEventId,
+  getEventRaffleDrawWinnersByEventId,
 };

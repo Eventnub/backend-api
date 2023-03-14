@@ -49,6 +49,14 @@ const submitEventRaffleDrawChoice = catchAsync(async (req, res) => {
   res.send(result);
 });
 
+const getEventRaffleDrawWinners = catchAsync(async (req, res) => {
+  const result = await raffleDrawService.getEventRaffleDrawWinnersByEventId(
+    req.params.eventId,
+    req.user.role
+  );
+  res.send(result);
+});
+
 module.exports = {
   createRaffleDraw,
   getRaffleDraw,
@@ -56,4 +64,5 @@ module.exports = {
   deleteRaffleDraw,
   getEventRaffleDraw,
   submitEventRaffleDrawChoice,
+  getEventRaffleDrawWinners
 };
