@@ -4,7 +4,7 @@ const { getUserById } = require("./user.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { uploadFile, deleteFile } = require("./fileStorage.service");
 
-const createEvent = async (creatorId, photoFile, eventBody) => {
+const createEvent = async (creatorId, creatorRole, photoFile, eventBody) => {
   const uid = generateFirebaseId("events");
   const filename = `eventsPhotos/${uid}.jpg`;
   const photoUrl = await uploadFile(photoFile, filename);
@@ -12,6 +12,12 @@ const createEvent = async (creatorId, photoFile, eventBody) => {
   eventBody.photoUrl = photoUrl;
   eventBody.createdAt = Date.now();
   eventBody.creatorId = creatorId;
+
+  if (creatorRole === "admin") {
+    eventBody.isApproved = true;
+  } else {
+    eventBody.isApproved = false;
+  }
 
   // Add extra index field to each ticket
   eventBody.tickets = eventBody.tickets.map((ticket, index) => ({
@@ -29,7 +35,11 @@ const createEvent = async (creatorId, photoFile, eventBody) => {
 };
 
 const getEvents = async () => {
-  const snapshot = await admin.firestore().collection("events").get();
+  const snapshot = await admin
+    .firestore()
+    .collection("events")
+    .where("isApproved", "==", true)
+    .get();
   const events = snapshot.docs.map((doc) => doc.data());
   return events;
 };

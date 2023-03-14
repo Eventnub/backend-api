@@ -6,6 +6,7 @@ const { eventService } = require("../services");
 const createEvent = catchAsync(async (req, res) => {
   const event = await eventService.createEvent(
     req.user.uid,
+    req.user.role,
     req.file,
     req.body
   );
