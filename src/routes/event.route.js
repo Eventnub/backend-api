@@ -43,4 +43,13 @@ router
     eventController.likeOrUnlikeEvent
   );
 
+router
+  .route("/approve-event/:eventId")
+  .patch(
+    Authentication,
+    Authorization("admin"),
+    validate(eventValidation.approveEvent),
+    eventController.approveEvent
+  );
+
 module.exports = router;

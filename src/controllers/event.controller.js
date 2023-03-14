@@ -49,6 +49,14 @@ const likeOrUnlikeEvent = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const approveEvent = catchAsync(async (req, res) => {
+  const result = await eventService.approveEventById(
+    req.user.uid,
+    req.params.eventId
+  );
+  res.send(result);
+});
+
 module.exports = {
   createEvent,
   getEvents,
@@ -56,4 +64,5 @@ module.exports = {
   updateEvent,
   deleteEvent,
   likeOrUnlikeEvent,
+  approveEvent,
 };

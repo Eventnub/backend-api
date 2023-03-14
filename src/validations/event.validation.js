@@ -95,6 +95,12 @@ const likeOrUnlikeEvent = {
   }),
 };
 
+const approveEvent = {
+  params: Joi.object().keys({
+    eventId: Joi.string().required().custom(documentId),
+  }),
+};
+
 module.exports = {
   createEvent,
   getEvents,
@@ -102,4 +108,5 @@ module.exports = {
   updateEvent,
   deleteEvent,
   likeOrUnlikeEvent,
+  approveEvent,
 };

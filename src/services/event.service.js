@@ -142,6 +142,26 @@ const likeOrUnlikeEventById = async (eventId, userId, action) => {
   }
 };
 
+const approveEventById = async (approverId, eventId) => {
+  const event = await getEventById(eventId);
+  if (!event) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Event with uid not found");
+  }
+
+  if (event.isApproved) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "The event is already approved");
+  }
+
+  const approveBody = {
+    isApproved: true,
+    approvedAt: Date.now(),
+    approverId: approverId,
+  };
+
+  await admin.firestore().collection("events").doc(eventId).update(approveBody);
+  return approveBody;
+};
+
 module.exports = {
   createEvent,
   getEvents,
@@ -149,4 +169,5 @@ module.exports = {
   updateEventById,
   deleteEventById,
   likeOrUnlikeEventById,
+  approveEventById
 };
