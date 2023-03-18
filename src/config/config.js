@@ -23,4 +23,12 @@ module.exports = {
     client_x509_cert_url: process.env.FIREBASE_ADMIN_CLIENT_X509_CERT_URL,
   },
   paystackSecretKey: process.env.PAYSTACK_SECRET_KEY,
+  smtpConfig: {
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    auth: {
+      user: process.env.SMTP_USERNAME,
+      pass: process.env.SMTP_PASSWORD,
+    },
+  },
 };

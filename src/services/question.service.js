@@ -1,8 +1,12 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
 const shuffle = require("../utils/shuffle");
-const { getEventById } = require("./event.service");
+const { sendWonTicketEmail } = require("./email.service");
+const { getEventById, getEvents } = require("./event.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
+const { getPaymentByUserIdAndEventId } = require("./payment.service");
+const { saveAcquiredTicket } = require("./ticket.service");
+const { getUsers } = require("./user.service");
 
 const createQuestion = async (creator, questionBody) => {
   const event = await getEventById(questionBody.eventId);
@@ -169,12 +173,31 @@ const submitEventQuizAnswersByEventId = async (
   eventId,
   answersBody
 ) => {
-  const quizResult = await getQuizResultByUserIdAndEventId(userId, eventId);
+  const payment = await getPaymentByUserIdAndEventId(userId, eventId);
+  if (!payment) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "You've not made payment for this event quiz"
+    );
+  }
 
+  const quizResult = await getQuizResultByUserIdAndEventId(userId, eventId);
   if (quizResult) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
       "You've already taken this quiz"
+    );
+  }
+
+  const raffleDrawResult = await getRaffleDrawResultByUserIdAndEventId(
+    userId,
+    eventId
+  );
+  if (raffleDrawResult) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `You've already made a submission for this event raffle draw.
+      Users can only participate in one game for a particular event.`
     );
   }
 
@@ -223,6 +246,7 @@ const submitEventQuizAnswersByEventId = async (
     uid,
     userId,
     eventId,
+    ticketIndex: payment.ticketIndex,
     questionAndAnswers,
     numberOfPasses,
     numberOfFailures,
@@ -234,6 +258,13 @@ const submitEventQuizAnswersByEventId = async (
   delete result["questionAndAnswers"];
 
   return result;
+};
+
+const rewardTicketWinners = async (rewardData) => {
+  for (let i = 0; i < rewardData.length; i++) {
+    await saveAcquiredTicket(rewardData[i].acquiredTicket);
+    await sendWonTicketEmail(rewardData[i].emailData);
+  }
 };
 
 const getEventQuizWinnersByEventId = async (eventId, role) => {
@@ -269,7 +300,31 @@ const getEventQuizWinnersByEventId = async (eventId, role) => {
       resultId: result.uid,
     }));
 
-    // TODO: Send mails containing ticket to winners
+    const users = await getUsers();
+    const rewardData = winners.map((winner) => {
+      const [user] = users.filter((user) => user.uid === winner.userId);
+      const [result] = quizResults.filter(
+        (result) => result.uid === winner.resultId
+      );
+      const acquiredTicket = {
+        userId: user.uid,
+        eventId: event.uid,
+        ticketIndex: result.ticketIndex,
+        acquisitionMethod: "Won",
+        playedGame: "quiz",
+      };
+      const emailData = {
+        userName: user.firstName,
+        userEmail: user.email,
+        eventName: event.name,
+        eventDate: event.date,
+        playedGame: "quiz",
+        ticketUrl: `https://eventnub.netlify.app/dashboard/tickets`,
+      };
+
+      return { acquiredTicket, emailData };
+    });
+    await rewardTicketWinners(rewardData);
 
     const uid = generateFirebaseId("quizWinners");
     quizWinners = {
@@ -285,6 +340,18 @@ const getEventQuizWinnersByEventId = async (eventId, role) => {
   return quizWinners;
 };
 
+// Added here to avoid circular dependency issue
+const getRaffleDrawResultByUserIdAndEventId = async (userId, eventId) => {
+  const snapshot = await admin
+    .firestore()
+    .collection("raffleDrawResults")
+    .where("userId", "==", userId)
+    .where("eventId", "==", eventId)
+    .get();
+  const raffleDrawResult = snapshot.empty ? null : snapshot.docs.at(0).data();
+  return raffleDrawResult;
+};
+
 module.exports = {
   createQuestion,
   getQuestionById,
@@ -292,5 +359,5 @@ module.exports = {
   deleteQuestionById,
   getEventQuizByEventId,
   submitEventQuizAnswersByEventId,
-  getEventQuizWinnersByEventId,
+  getEventQuizWinnersByEventId
 };

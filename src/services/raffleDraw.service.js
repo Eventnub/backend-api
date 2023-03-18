@@ -1,8 +1,12 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
 const shuffle = require("../utils/shuffle");
+const { sendWonTicketEmail } = require("./email.service");
 const { getEventById } = require("./event.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
+const { getPaymentByUserIdAndEventId } = require("./payment.service");
+const { saveAcquiredTicket } = require("./ticket.service");
+const { getUsers } = require("./user.service");
 
 const createRaffleDraw = async (creator, raffleDrawBody) => {
   const event = await getEventById(raffleDrawBody.eventId);
@@ -149,15 +153,15 @@ const getEventRaffleDrawByEventId = async (eventId, role) => {
   return eventRaffleDraw;
 };
 
-const getRaffleDrawChoiceByUserIdAndEventId = async (userId, eventId) => {
+const getRaffleDrawResultByUserIdAndEventId = async (userId, eventId) => {
   const snapshot = await admin
     .firestore()
-    .collection("raffleDrawChoices")
+    .collection("raffleDrawResults")
     .where("userId", "==", userId)
     .where("eventId", "==", eventId)
     .get();
-  const raffleDrawChoice = snapshot.empty ? null : snapshot.docs.at(0).data();
-  return raffleDrawChoice;
+  const raffleDrawResult = snapshot.empty ? null : snapshot.docs.at(0).data();
+  return raffleDrawResult;
 };
 
 const submitEventRaffleDrawChoiceByEventId = async (
@@ -165,15 +169,31 @@ const submitEventRaffleDrawChoiceByEventId = async (
   eventId,
   choiceBody
 ) => {
-  const raffleDrawChoice = await getRaffleDrawChoiceByUserIdAndEventId(
+  const payment = await getPaymentByUserIdAndEventId(userId, eventId);
+  if (!payment) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "You've not made payment for this event quiz"
+    );
+  }
+
+  const raffleDrawResult = await getRaffleDrawResultByUserIdAndEventId(
     userId,
     eventId
   );
-
-  if (raffleDrawChoice) {
+  if (raffleDrawResult) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      "You've already submitted a choice for this raffle draw"
+      "You've already made a submission for this event raffle draw"
+    );
+  }
+
+  const quizResult = await getQuizResultByUserIdAndEventId(userId, eventId);
+  if (quizResult) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `You've already made a submission for this event quiz.
+      Users can only participate in one game for a particular event.`
     );
   }
 
@@ -194,12 +214,13 @@ const submitEventRaffleDrawChoiceByEventId = async (
     }
   });
 
-  const uid = generateFirebaseId("raffleDrawChoices");
+  const uid = generateFirebaseId("raffleDrawResults");
 
   const result = {
     uid,
     userId,
     eventId,
+    ticketIndex: payment.ticketIndex,
     chosenNumbers: choiceBody.chosenNumbers,
     correctMatches,
     numberOfCorrectMatches: correctMatches.length,
@@ -232,17 +253,24 @@ const getRaffleDrawResultsByEventId = async (eventId) => {
   return raffleDrawResults;
 };
 
+const rewardTicketWinners = async (rewardData) => {
+  for (let i = 0; i < rewardData.length; i++) {
+    await saveAcquiredTicket(rewardData[i].acquiredTicket);
+    await sendWonTicketEmail(rewardData[i].emailData);
+  }
+};
+
 const getEventRaffleDrawWinnersByEventId = async (eventId, role) => {
   let raffleDrawWinners = await getRaffleDrawWinnersByEventId(eventId);
 
   if (!raffleDrawWinners) {
     const event = await getEventById(eventId);
-    if (event && event.raffleDrawEndTimestamp > Date.now()) {
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        "Submission of raffle draw choices has not ended yet"
-      );
-    }
+    // if (event && event.raffleDrawEndTimestamp > Date.now()) {
+    //   throw new ApiError(
+    //     httpStatus.BAD_REQUEST,
+    //     "Submission of raffle draw choices has not ended yet"
+    //   );
+    // }
 
     const raffleDrawResults = await getRaffleDrawResultsByEventId(eventId);
 
@@ -265,7 +293,31 @@ const getEventRaffleDrawWinnersByEventId = async (eventId, role) => {
       resultId: result.uid,
     }));
 
-    // TODO: Send mails containing ticket to winners
+    const users = await getUsers();
+    const rewardData = winners.map((winner) => {
+      const [user] = users.filter((user) => user.uid === winner.userId);
+      const [result] = raffleDrawResults.filter(
+        (result) => result.uid === winner.resultId
+      );
+      const acquiredTicket = {
+        userId: user.uid,
+        eventId: event.uid,
+        ticketIndex: result.ticketIndex,
+        acquisitionMethod: "Won",
+        playedGame: "raffle draw",
+      };
+      const emailData = {
+        userName: user.firstName,
+        userEmail: user.email,
+        eventName: event.name,
+        eventDate: event.date,
+        playedGame: "raffle draw",
+        ticketUrl: `https://eventnub.netlify.app/dashboard/tickets`,
+      };
+
+      return { acquiredTicket, emailData };
+    });
+    await rewardTicketWinners(rewardData);
 
     const uid = generateFirebaseId("raffleDrawWinners");
     raffleDrawWinners = {
@@ -283,6 +335,18 @@ const getEventRaffleDrawWinnersByEventId = async (eventId, role) => {
   }
 
   return raffleDrawWinners;
+};
+
+// Added here to avoid circular dependency issue
+const getQuizResultByUserIdAndEventId = async (userId, eventId) => {
+  const snapshot = await admin
+    .firestore()
+    .collection("quizResults")
+    .where("userId", "==", userId)
+    .where("eventId", "==", eventId)
+    .get();
+  const quizResult = snapshot.empty ? null : snapshot.docs.at(0).data();
+  return quizResult;
 };
 
 module.exports = {
