@@ -54,9 +54,7 @@ const saveUserSearchQuery = {
 
 const changeUserToHost = {
   body: Joi.object().keys({
-    bankName: Joi.string().required(),
-    accountNumber: Joi.string().required(),
-    accountName: Joi.string().required(),
+    phoneNumber: Joi.string().required()
   }),
 };
 
