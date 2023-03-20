@@ -60,7 +60,8 @@ const approveEvent = catchAsync(async (req, res) => {
 
 const getCreatorEvents = catchAsync(async (req, res) => {
   const result = await eventService.getCreatorEventsByCreatorId(
-    req.params.creatorId
+    req.params.creatorId,
+    req.user
   );
   res.send(result);
 });

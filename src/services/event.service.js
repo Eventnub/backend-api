@@ -176,13 +176,22 @@ const approveEventById = async (approverId, eventId) => {
   return approveBody;
 };
 
-const getCreatorEventsByCreatorId = async (creatorId) => {
+const getCreatorEventsByCreatorId = async (creatorId, requester) => {
   const snapshot = await admin
     .firestore()
     .collection("events")
     .where("creatorId", "==", creatorId)
     .get();
-  const events = snapshot.docs.map((doc) => doc.data());
+
+  let events = snapshot.docs.map((doc) => doc.data());
+
+  if (
+    !["admin", "host"].includes(requester.role) ||
+    (["host"].includes(requester.role) && requester.uid !== creatorId)
+  ) {
+    events = events.filter((event) => event.isApproved === true);
+  }
+
   return events;
 };
 
@@ -194,5 +203,5 @@ module.exports = {
   deleteEventById,
   likeOrUnlikeEventById,
   approveEventById,
-  getCreatorEventsByCreatorId
+  getCreatorEventsByCreatorId,
 };
