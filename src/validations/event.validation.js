@@ -19,6 +19,7 @@ const createEvent = {
           .keys({
             type: Joi.string().required(),
             price: Joi.number().required(),
+            description: Joi.string().required(),
           })
           .min(1)
       )
@@ -66,6 +67,7 @@ const updateEvent = {
         .keys({
           type: Joi.string().required(),
           price: Joi.number().required(),
+          description: Joi.string().required(),
         })
         .min(1)
     ),
@@ -115,5 +117,5 @@ module.exports = {
   deleteEvent,
   likeOrUnlikeEvent,
   approveEvent,
-  getCreatorEvents
+  getCreatorEvents,
 };
