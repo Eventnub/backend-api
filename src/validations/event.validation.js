@@ -101,6 +101,12 @@ const approveEvent = {
   }),
 };
 
+const getCreatorEvents = {
+  params: Joi.object().keys({
+    creatorId: Joi.required().custom(documentId),
+  }),
+};
+
 module.exports = {
   createEvent,
   getEvents,
@@ -109,4 +115,5 @@ module.exports = {
   deleteEvent,
   likeOrUnlikeEvent,
   approveEvent,
+  getCreatorEvents
 };

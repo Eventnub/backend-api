@@ -176,6 +176,16 @@ const approveEventById = async (approverId, eventId) => {
   return approveBody;
 };
 
+const getCreatorEventsByCreatorId = async (creatorId) => {
+  const snapshot = await admin
+    .firestore()
+    .collection("events")
+    .where("creatorId", "==", creatorId)
+    .get();
+  const events = snapshot.docs.map((doc) => doc.data());
+  return events;
+};
+
 module.exports = {
   createEvent,
   getEvents,
@@ -184,4 +194,5 @@ module.exports = {
   deleteEventById,
   likeOrUnlikeEventById,
   approveEventById,
+  getCreatorEventsByCreatorId
 };

@@ -52,4 +52,12 @@ router
     eventController.approveEvent
   );
 
+router
+  .route("/get-creator-events/:creatorId")
+  .get(
+    Authentication,
+    validate(eventValidation.getCreatorEvents),
+    eventController.getCreatorEvents
+  );
+
 module.exports = router;
