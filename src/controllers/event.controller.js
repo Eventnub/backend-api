@@ -4,12 +4,7 @@ const catchAsync = require("../utils/catchAsync");
 const { eventService } = require("../services");
 
 const createEvent = catchAsync(async (req, res) => {
-  const event = await eventService.createEvent(
-    req.user.uid,
-    req.user.role,
-    req.file,
-    req.body
-  );
+  const event = await eventService.createEvent(req.user, req.file, req.body);
   res.status(httpStatus.CREATED).send(event);
 });
 

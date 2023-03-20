@@ -4,16 +4,16 @@ const { getUserById } = require("./user.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { uploadFile, deleteFile } = require("./fileStorage.service");
 
-const createEvent = async (creatorId, creatorRole, photoFile, eventBody) => {
+const createEvent = async (creator, photoFile, eventBody) => {
   const uid = generateFirebaseId("events");
   const filename = `eventsPhotos/${uid}.jpg`;
   const photoUrl = await uploadFile(photoFile, filename);
   eventBody.uid = uid;
   eventBody.photoUrl = photoUrl;
   eventBody.createdAt = Date.now();
-  eventBody.creatorId = creatorId;
+  eventBody.creatorId = creator.uid;
 
-  if (creatorRole === "admin") {
+  if (creator.role === "admin") {
     eventBody.isApproved = true;
   } else {
     eventBody.isApproved = false;
