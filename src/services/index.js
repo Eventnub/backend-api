@@ -6,3 +6,4 @@ module.exports.questionService = require("./question.service");
 module.exports.inviteService = require("./invite.service");
 module.exports.paymentService = require("./payment.service");
 module.exports.raffleDrawService = require("./raffleDraw.service");
+module.exports.ticketService = require("./ticket.service");
