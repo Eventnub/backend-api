@@ -14,4 +14,12 @@ router
     paymentController.verifyTicketPayment
   );
 
+router
+  .route("/handle-stripe-ticket-payment")
+  .post(
+    Authentication,
+    validate(paymentValidation.handleStripeTicketPayment),
+    paymentController.handleStripeTicketPayment
+  );
+
 module.exports = router;

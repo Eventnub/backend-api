@@ -31,4 +31,5 @@ module.exports = {
       pass: process.env.SMTP_PASSWORD,
     },
   },
+  stripeSecretKey: process.env.STRIPE_SECRET_KEY,
 };

@@ -7,6 +7,8 @@ const { getEventById } = require("./event.service");
 const { getUserById } = require("./user.service");
 const { saveAcquiredTicket } = require("./ticket.service");
 const { sendBoughtTicketEmail } = require("./email.service");
+const { stripeSecretKey } = require("../config/config");
+const stripe = require("stripe")(stripeSecretKey);
 
 const verifyPaystackPayment = async (reference) => {
   try {
@@ -129,7 +131,34 @@ const verifyTicketPayment = async (userId, paymentBody) => {
   }
 };
 
+const handleStripeTicketPayment = async (payer, paymentBody) => {
+  const { amount, token } = paymentBody;
+  const { uid: userId, email } = payer;
+
+  try {
+    const customer = await stripe.customers.create({
+      email: email,
+      source: token.id,
+      name: token.card.name,
+    });
+    const charge = await stripe.charges.create({
+      amount: parseFloat(amount) * 100,
+      description: `Payment for USD ${amount}`,
+      currency: "USD",
+      customer: customer.id,
+    });
+
+    paymentBody.transactionReference = charge.id;
+    delete paymentBody["token"];
+
+    verifyTicketPayment(userId, paymentBody);
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+  }
+};
+
 module.exports = {
   verifyTicketPayment,
-  getPaymentByUserIdAndEventId
+  getPaymentByUserIdAndEventId,
+  handleStripeTicketPayment,
 };
