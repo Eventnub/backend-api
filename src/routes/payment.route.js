@@ -7,11 +7,11 @@ const paymentController = require("../controllers/payment.controller");
 const router = express.Router();
 
 router
-  .route("/verify-ticket-payment")
+  .route("/handle-paystack-ticket-payment")
   .post(
     Authentication,
-    validate(paymentValidation.verifyTicketPayment),
-    paymentController.verifyTicketPayment
+    validate(paymentValidation.handlePaystackTicketPayment),
+    paymentController.handlePaystackTicketPayment
   );
 
 router

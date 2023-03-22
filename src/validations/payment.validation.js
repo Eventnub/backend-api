@@ -1,7 +1,7 @@
 const Joi = require("joi");
 const { password, documentId } = require("./custom.validation");
 
-const verifyTicketPayment = {
+const handlePaystackTicketPayment = {
   body: Joi.object().keys({
     paymentService: Joi.string().valid("paystack").required(),
     transactionReference: Joi.string().required(),
@@ -23,6 +23,6 @@ const handleStripeTicketPayment = {
 };
 
 module.exports = {
-  verifyTicketPayment,
-  handleStripeTicketPayment
+  handlePaystackTicketPayment,
+  handleStripeTicketPayment,
 };

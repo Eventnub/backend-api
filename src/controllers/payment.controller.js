@@ -1,8 +1,9 @@
 const catchAsync = require("../utils/catchAsync");
+const httpStatus = require("http-status");
 const { paymentService } = require("../services");
 
-const verifyTicketPayment = catchAsync(async (req, res) => {
-  await paymentService.verifyTicketPayment(req.user.uid, req.body);
+const handlePaystackTicketPayment = catchAsync(async (req, res) => {
+  await paymentService.handlePaystackTicketPayment(req.user, req.body);
   res.status(httpStatus.NO_CONTENT).send();
 });
 
@@ -12,6 +13,6 @@ const handleStripeTicketPayment = catchAsync(async (req, res) => {
 });
 
 module.exports = {
-  verifyTicketPayment,
+  handlePaystackTicketPayment,
   handleStripeTicketPayment,
 };
