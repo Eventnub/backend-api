@@ -32,4 +32,5 @@ module.exports = {
     },
   },
   stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+  deepgramApiKey: process.env.DEEPGRAM_API_KEY,
 };

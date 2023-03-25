@@ -8,6 +8,7 @@ const raffleDrawRoute = require("./raffleDraw.route");
 const inviteRoute = require("./invite.route");
 const paymentRoute = require("./payment.route");
 const ticketRoute = require("./ticket.route");
+const musicUnisonRoute = require("./musicUnison.route");
 
 const router = express.Router();
 
@@ -47,6 +48,10 @@ const routes = [
   {
     path: "/tickets",
     route: ticketRoute,
+  },
+  {
+    path: "/music-unison",
+    route: musicUnisonRoute,
   },
 ];
 
