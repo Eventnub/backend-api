@@ -139,7 +139,7 @@ const transcribeAudio = async (audioFile) => {
     });
 
     return {
-      transcription: response.results.channels[0].alternatives[0].transcript,
+      transcript: response.results.channels[0].alternatives[0].transcript,
     };
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.message);
