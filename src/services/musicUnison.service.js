@@ -2,6 +2,7 @@ const { Deepgram } = require("@deepgram/sdk");
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
 const config = require("../config/config");
+const { admin, generateFirebaseId } = require("./firebase.service");
 const { uploadFile, deleteFile } = require("./fileStorage.service");
 const { getEventById } = require("./event.service");
 
@@ -59,9 +60,14 @@ const updateMusicUnisonById = async (
   updateAudioFile,
   updateBody
 ) => {
-  const event = await getEventById(uid);
+  const musicUnison = await getMusicUnisonById(uid, { role: "admin" });
+  if (!musicUnison) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Music unison with uid not found");
+  }
+
+  const event = await getEventById(musicUnison.eventId);
   if (!event) {
-    throw new ApiError(httpStatus.NOT_FOUND, "Event with uid not found");
+    throw new ApiError(httpStatus.NOT_FOUND, "Music unison event not found");
   }
 
   if (!["admin"].includes(updater.role) && event.creatorId !== updater.uid) {
@@ -89,9 +95,14 @@ const updateMusicUnisonById = async (
 };
 
 const deleteMusicUnisonById = async (deleter, uid) => {
-  const event = await getEventById(uid);
+  const musicUnison = await getMusicUnisonById(uid, { role: "admin" });
+  if (!musicUnison) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Music unison with uid not found");
+  }
+
+  const event = await getEventById(musicUnison.eventId);
   if (!event) {
-    throw new ApiError(httpStatus.NOT_FOUND, "Event with uid not found");
+    throw new ApiError(httpStatus.NOT_FOUND, "Music unison event not found");
   }
 
   if (!["admin"].includes(deleter.role) && event.creatorId !== deleter.uid) {
@@ -101,7 +112,7 @@ const deleteMusicUnisonById = async (deleter, uid) => {
     );
   }
 
-  await deleteFile(event.audioUrl);
+  await deleteFile(musicUnison.audioUrl);
   await admin.firestore().collection("musicUnisons").doc(uid).delete();
 };
 
