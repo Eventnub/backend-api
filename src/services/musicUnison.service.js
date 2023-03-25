@@ -40,13 +40,13 @@ const createMusicUnison = async (creator, audioFile, musicUnisonBody) => {
   return { ...musicUnisonBody };
 };
 
-const getMusicUnisonById = async (uid, role) => {
+const getMusicUnisonById = async (uid, requester) => {
   const doc = await admin.firestore().collection("musicUnisons").doc(uid).get();
   let musicUnison = null;
 
   if (doc) {
     musicUnison = doc.data();
-    if (!["admin", "host"].includes(role)) {
+    if (!["admin", "host"].includes(requester.role)) {
       delete musicUnison["songTranscript"];
     }
   }
