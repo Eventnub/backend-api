@@ -1,5 +1,5 @@
 const express = require("express");
-const { Authentication } = require("../middlewares/auth");
+const { Authentication, Authorization } = require("../middlewares/auth");
 const multerConfig = require("../config/multer");
 const validate = require("../middlewares/validate");
 const musicUnisonController = require("../controllers/musicUnison.controller");
