@@ -40,7 +40,7 @@ const deleteMusicUnison = catchAsync(async (req, res) => {
 
 const getEventMusicUnisons = catchAsync(async (req, res) => {
   const musicUnisons = await musicUnisonService.getEventMusicUnisonsByEventId(
-    req.params.uid,
+    req.params.eventId,
     req.user
   );
   res.send(musicUnisons);
