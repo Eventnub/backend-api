@@ -15,7 +15,7 @@ const handlePaystackTicketPayment = {
 const handleStripeTicketPayment = {
   body: Joi.object().keys({
     paymentService: Joi.string().valid("stripe").required(),
-    token: Joi.string().required(),
+    token: Joi.object().required(),
     amount: Joi.number().required(),
     objective: Joi.string().valid("to buy", "to play game").required(),
     eventId: Joi.string().required(),
