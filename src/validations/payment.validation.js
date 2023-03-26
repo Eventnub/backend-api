@@ -5,6 +5,7 @@ const handlePaystackTicketPayment = {
   body: Joi.object().keys({
     paymentService: Joi.string().valid("paystack").required(),
     transactionReference: Joi.string().required(),
+    amount: Joi.number().required(),
     objective: Joi.string().valid("to buy", "to play game").required(),
     eventId: Joi.string().required(),
     ticketIndex: Joi.number().required(),
