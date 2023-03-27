@@ -49,7 +49,7 @@ const getMusicUnisonById = async (uid, requester) => {
   if (doc) {
     musicUnison = doc.data();
     if (!["admin", "host"].includes(requester.role)) {
-      delete musicUnison["songTranscript"];
+      delete musicUnison["songLyrics"];
     }
   }
   return musicUnison;
@@ -134,7 +134,7 @@ const getEventMusicUnisonsByEventId = async (eventId, requester) => {
       !["admin"].includes(requester.role) &&
       event.creatorId !== requester.uid
     ) {
-      delete musicUnison["songTranscript"];
+      delete musicUnison["songLyrics"];
     }
     return musicUnison;
   });
@@ -172,7 +172,7 @@ const submitEventMusicUnisonAudio = async (
 
   const { transcript } = await transcribeAudio(audioFile);
   const degreeOfSimilarity = stringSimilarity.compareTwoStrings(
-    musicUnison.songTranscript,
+    musicUnison.songLyrics,
     transcript
   );
 

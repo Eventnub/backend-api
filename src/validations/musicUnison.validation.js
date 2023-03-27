@@ -4,7 +4,7 @@ const { documentId } = require("./custom.validation");
 const createMusicUnison = {
   body: Joi.object().keys({
     eventId: Joi.string().required(),
-    songTranscript: Joi.string().required(),
+    songLyrics: Joi.string().required(),
     songArtist: Joi.string().required(),
     songTitle: Joi.string().required(),
   }),
@@ -22,7 +22,7 @@ const updateMusicUnison = {
     uid: Joi.required().custom(documentId),
   }),
   body: Joi.object().keys({
-    songTranscript: Joi.string(),
+    songLyrics: Joi.string(),
     songArtist: Joi.string(),
     songTitle: Joi.string(),
   }),
