@@ -56,4 +56,13 @@ router
     musicUnisonController.transcribeAudio
   );
 
+router
+  .route("/submit-event-music-unison-audio")
+  .post(
+    Authentication,
+    multerConfig.single("audio"),
+    validate(musicUnisonValidation.submitEventMusicUnisonAudio),
+    musicUnisonController.submitEventMusicUnisonAudio
+  );
+
 module.exports = router;

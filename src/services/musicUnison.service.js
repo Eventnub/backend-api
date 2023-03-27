@@ -1,5 +1,6 @@
 const { Deepgram } = require("@deepgram/sdk");
 const httpStatus = require("http-status");
+const stringSimilarity = require("string-similarity");
 const ApiError = require("../utils/ApiError");
 const config = require("../config/config");
 const { admin, generateFirebaseId } = require("./firebase.service");
@@ -157,6 +158,48 @@ const transcribeAudio = async (audioFile) => {
   }
 };
 
+const submitEventMusicUnisonAudio = async (
+  musicUnisonId,
+  audioFile,
+  submitter
+) => {
+  const musicUnison = await getMusicUnisonById(musicUnisonId, {
+    role: "admin",
+  });
+  if (!musicUnison) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Music unison with uid not found");
+  }
+
+  const { transcript } = await transcribeAudio(audioFile);
+  const degreeOfSimilarity = stringSimilarity.compareTwoStrings(
+    musicUnison.songTranscript,
+    transcript
+  );
+
+  const similarityPercentage = parseFloat(
+    (degreeOfSimilarity * 100).toFixed(2)
+  );
+
+  const uid = generateFirebaseId("musicUnisonResults");
+
+  const musicUnisonResult = {
+    uid,
+    musicUnisonId,
+    userId: submitter.uid,
+    similarityPercentage,
+    transcript,
+    createdAt: Date.now(),
+  };
+
+  await admin
+    .firestore()
+    .collection("musicUnisonResults")
+    .doc(uid)
+    .set(musicUnisonResult);
+
+  return { ...musicUnisonResult };
+};
+
 module.exports = {
   createMusicUnison,
   getMusicUnisonById,
@@ -164,4 +207,5 @@ module.exports = {
   deleteMusicUnisonById,
   getEventMusicUnisonsByEventId,
   transcribeAudio,
+  submitEventMusicUnisonAudio,
 };

@@ -51,6 +51,15 @@ const transcribeAudio = catchAsync(async (req, res) => {
   res.send(transcription);
 });
 
+const submitEventMusicUnisonAudio = catchAsync(async (req, res) => {
+  const result = await musicUnisonService.submitEventMusicUnisonAudio(
+    req.body.musicUnisonId,
+    req.file,
+    req.user
+  );
+  res.send(result);
+});
+
 module.exports = {
   createMusicUnison,
   getMusicUnison,
@@ -58,4 +67,5 @@ module.exports = {
   deleteMusicUnison,
   getEventMusicUnisons,
   transcribeAudio,
+  submitEventMusicUnisonAudio,
 };
