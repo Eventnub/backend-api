@@ -22,4 +22,12 @@ router
     paymentController.handleStripeTicketPayment
   );
 
+router
+  .route("/get-user-payment-for-event/:eventId")
+  .get(
+    Authentication,
+    validate(paymentValidation.getUserPaymentForEvent),
+    paymentController.getUserPaymentForEvent
+  );
+
 module.exports = router;

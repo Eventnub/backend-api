@@ -111,7 +111,6 @@ const handlePaystackTicketPayment = async (payer, paymentBody) => {
     }
 
     await onTicketPaymentSuccess(userId, paymentBody);
-    
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.message);
   }
@@ -138,14 +137,23 @@ const handleStripeTicketPayment = async (payer, paymentBody) => {
     delete paymentBody["token"];
 
     await onTicketPaymentSuccess(userId, paymentBody);
-
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.message);
   }
+};
+
+const getUserPaymentForEvent = async (userId, eventId) => {
+  const payment = await getPaymentByUserIdAndEventId(userId, eventId);
+  if (!payment) {
+    throw new ApiError(httpStatus.NOT_FOUND, "No payment found");
+  }
+  delete payment["transactionReference"];
+  return payment;
 };
 
 module.exports = {
   handlePaystackTicketPayment,
   handleStripeTicketPayment,
   getPaymentByUserIdAndEventId,
+  getUserPaymentForEvent,
 };

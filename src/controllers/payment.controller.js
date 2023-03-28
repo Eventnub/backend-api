@@ -12,7 +12,16 @@ const handleStripeTicketPayment = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const getUserPaymentForEvent = catchAsync(async (req, res) => {
+  const payment = await paymentService.getUserPaymentForEvent(
+    req.user.uid,
+    req.params.eventId
+  );
+  res.send(payment);
+});
+
 module.exports = {
   handlePaystackTicketPayment,
   handleStripeTicketPayment,
+  getUserPaymentForEvent
 };
