@@ -6,7 +6,9 @@ const handlePaystackTicketPayment = {
     paymentService: Joi.string().valid("paystack").required(),
     transactionReference: Joi.string().required(),
     amount: Joi.number().required(),
-    objective: Joi.string().valid("to buy", "to play game").required(),
+    objective: Joi.string()
+      .valid("purchase", "quiz and music match", "raffle draw")
+      .required(),
     eventId: Joi.string().required(),
     ticketIndex: Joi.number().required(),
   }),
@@ -17,7 +19,9 @@ const handleStripeTicketPayment = {
     paymentService: Joi.string().valid("stripe").required(),
     token: Joi.object().required(),
     amount: Joi.number().required(),
-    objective: Joi.string().valid("to buy", "to play game").required(),
+    objective: Joi.string()
+      .valid("purchase", "quiz and music match", "raffle draw")
+      .required(),
     eventId: Joi.string().required(),
     ticketIndex: Joi.number().required(),
   }),
@@ -32,5 +36,5 @@ const getUserPaymentForEvent = {
 module.exports = {
   handlePaystackTicketPayment,
   handleStripeTicketPayment,
-  getUserPaymentForEvent
+  getUserPaymentForEvent,
 };

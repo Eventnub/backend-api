@@ -57,12 +57,12 @@ const onTicketPaymentSuccess = async (userId, paymentBody) => {
     );
   }
 
-  if (paymentBody.objective === "to buy") {
+  if (paymentBody.objective === "purchase") {
     const acquiredTicket = {
       userId,
       eventId: paymentBody.eventId,
       ticketIndex: paymentBody.ticketIndex,
-      acquisitionMethod: "Paid",
+      acquisitionMethod: "Purchased",
     };
     await saveAcquiredTicket(acquiredTicket);
 
