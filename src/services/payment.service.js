@@ -117,6 +117,17 @@ const handlePaystackTicketPayment = async (payer, paymentBody) => {
 };
 
 const handleStripeTicketPayment = async (payer, paymentBody) => {
+  const payment = await getPaymentByUserIdAndEventId(
+    payer.uid,
+    paymentBody.eventId
+  );
+  if (payment) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "You've already made payment for this event"
+    );
+  }
+
   const { amount, token } = paymentBody;
   const { uid: userId, email } = payer;
 
