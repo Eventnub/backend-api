@@ -39,7 +39,7 @@ const getEvents = async () => {
     .firestore()
     .collection("events")
     .where("isApproved", "==", true)
-    .where("isArchived", "!=", true)
+    .where("isArchived", "==", false)
     .get();
   const events = snapshot.docs.map((doc) => doc.data());
   return events;
