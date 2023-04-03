@@ -145,9 +145,10 @@ const getEventMusicUnisonsByEventId = async (eventId, requester) => {
 const transcribeAudio = async (audioFile) => {
   try {
     const audioBuffer = audioFile.buffer;
-    const bufferSource = { buffer: audioBuffer, mimetype: "`audio/webm`" };
+    const bufferSource = { buffer: audioBuffer, mimetype: "audio/webm" };
     const response = await deepgram.transcription.preRecorded(bufferSource, {
       punctuate: true,
+      utterances: true,
     });
 
     return {

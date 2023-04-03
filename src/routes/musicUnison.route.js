@@ -46,15 +46,13 @@ router
     musicUnisonController.getEventMusicUnisons
   );
 
-router
-  .route("/transcribe-audio")
-  .post(
-    Authentication,
-    Authorization(["admin", "host"]),
-    multerConfig.single("audio"),
-    validate(musicUnisonValidation.transcribeAudio),
-    musicUnisonController.transcribeAudio
-  );
+router.route("/transcribe-audio").post(
+  // Authentication,
+  // Authorization(["admin", "host"]),
+  multerConfig.single("audio"),
+  validate(musicUnisonValidation.transcribeAudio),
+  musicUnisonController.transcribeAudio
+);
 
 router
   .route("/submit-event-music-unison-audio")
