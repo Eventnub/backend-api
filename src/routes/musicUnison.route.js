@@ -47,8 +47,8 @@ router
   );
 
 router.route("/transcribe-audio").post(
-  // Authentication,
-  // Authorization(["admin", "host"]),
+  Authentication,
+  Authorization(["admin", "host"]),
   multerConfig.single("audio"),
   validate(musicUnisonValidation.transcribeAudio),
   musicUnisonController.transcribeAudio

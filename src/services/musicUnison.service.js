@@ -4,7 +4,10 @@ const ApiError = require("../utils/ApiError");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { uploadFile, deleteFile } = require("./fileStorage.service");
 const { getEventById } = require("./event.service");
-const { deepGramTranscribeAudio: transcribeAudio } = require("./STT.service");
+const {
+  deepGramTranscribeAudio,
+  gCloudTranscribeAudio,
+} = require("./STT.service");
 
 const createMusicUnison = async (creator, audioFile, musicUnisonBody) => {
   const event = await getEventById(musicUnisonBody.eventId);
@@ -137,6 +140,19 @@ const getEventMusicUnisonsByEventId = async (eventId, requester) => {
   });
 
   return musicUnisons;
+};
+
+const transcribeAudio = (service, audioFile) => {
+  if (service === "deepgram") {
+    return deepGramTranscribeAudio(audioFile);
+  } else if (service === "google") {
+    return gCloudTranscribeAudio(audioFile);
+  } else {
+    throw new ApiError(
+      httpStatus.UNPROCESSABLE_ENTITY,
+      "Service provider not supported"
+    );
+  }
 };
 
 const submitEventMusicUnisonAudio = async (

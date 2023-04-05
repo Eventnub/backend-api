@@ -42,6 +42,9 @@ const getEventMusicUnisons = {
 };
 
 const transcribeAudio = {
+  body: Joi.object().keys({
+    service: Joi.string().valid("deepgram", "google").required(),
+  }),
   file: Joi.string().required(),
 };
 
