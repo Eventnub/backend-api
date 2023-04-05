@@ -1,13 +1,10 @@
-const { Deepgram } = require("@deepgram/sdk");
 const httpStatus = require("http-status");
 const stringSimilarity = require("string-similarity");
 const ApiError = require("../utils/ApiError");
-const config = require("../config/config");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { uploadFile, deleteFile } = require("./fileStorage.service");
 const { getEventById } = require("./event.service");
-
-const deepgram = new Deepgram(config.deepgramApiKey);
+const { deepGramTranscribeAudio: transcribeAudio } = require("./STT.service");
 
 const createMusicUnison = async (creator, audioFile, musicUnisonBody) => {
   const event = await getEventById(musicUnisonBody.eventId);
@@ -140,23 +137,6 @@ const getEventMusicUnisonsByEventId = async (eventId, requester) => {
   });
 
   return musicUnisons;
-};
-
-const transcribeAudio = async (audioFile) => {
-  try {
-    const audioBuffer = audioFile.buffer;
-    const bufferSource = { buffer: audioBuffer, mimetype: "audio/webm" };
-    const response = await deepgram.transcription.preRecorded(bufferSource, {
-      punctuate: true,
-      utterances: true,
-    });
-
-    return {
-      transcript: response.results.channels[0].alternatives[0].transcript,
-    };
-  } catch (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.message);
-  }
 };
 
 const submitEventMusicUnisonAudio = async (
