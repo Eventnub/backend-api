@@ -1,5 +1,4 @@
 const httpStatus = require("http-status");
-const stringSimilarity = require("string-similarity");
 const ApiError = require("../utils/ApiError");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { uploadFile, deleteFile } = require("./fileStorage.service");
@@ -167,25 +166,19 @@ const submitEventMusicUnisonAudio = async (
     throw new ApiError(httpStatus.NOT_FOUND, "Music unison with uid not found");
   }
 
-  const { transcript } = await transcribeAudio(audioFile);
-  const degreeOfSimilarity = stringSimilarity.compareTwoStrings(
-    musicUnison.songLyrics,
-    transcript
-  );
-
-  const similarityPercentage = parseFloat(
-    (degreeOfSimilarity * 100).toFixed(2)
-  );
-
   const uid = generateFirebaseId("musicUnisonResults");
+  const filename = `musicUnisonResults/${uid}.webm`;
+  const audioUrl = await uploadFile(audioFile, filename);
 
   const musicUnisonResult = {
     uid,
     musicUnisonId,
     userId: submitter.uid,
-    similarityPercentage,
-    transcript,
+    audioUrl,
     createdAt: Date.now(),
+    isScored: false,
+    scoredAt: 0,
+    accuracyRatio: 0,
   };
 
   await admin
