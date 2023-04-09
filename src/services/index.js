@@ -8,3 +8,4 @@ module.exports.paymentService = require("./payment.service");
 module.exports.raffleDrawService = require("./raffleDraw.service");
 module.exports.ticketService = require("./ticket.service");
 module.exports.musicUnisonService = require("./musicUnison.service");
+module.exports.reviewerService = require("./reviewer.service");

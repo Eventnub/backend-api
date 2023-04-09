@@ -14,8 +14,12 @@ const sendSMS = async (to, message) => {
     {
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + sinchConfig.apiToken,
+        Authorization: `Bearer ${sinchConfig.apiToken}`,
       },
     }
   );
+};
+
+module.exports = {
+  sendSMS,
 };
