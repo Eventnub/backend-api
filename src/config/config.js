@@ -36,10 +36,5 @@ module.exports = {
   gcloudConfig: {
     private_key: process.env.GCLOUD_PRIVATE_KEY?.replace(/\\n/g, "\n"),
     client_email: process.env.GCLOUD_CLIENT_EMAIL,
-  },
-  sinchConfig: {
-    servicePlanId: process.env.SINCH_SERVICE_PLAI_ID,
-    apiToken: process.env.SINCH_API_TOKEN,
-    sinchNumber: process.env.SINCH_NUMBER,
-  },
+  }
 };

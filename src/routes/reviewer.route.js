@@ -6,10 +6,16 @@ const reviewerController = require("../controllers/reviewer.controller");
 
 const router = express.Router();
 
-router.route("/send-phone-number-verification-code").post(
+router.route("/send-email-verification-code").post(
   Authentication,
-  validate(reviewerValidation.sendPhoneNumberVerificationCode),
-  reviewerController.sendPhoneNumberVerificationCode
+  validate(reviewerValidation.sendEmailVerificationCode),
+  reviewerController.sendEmailVerificationCode
+);
+
+router.route("/verify-code").post(
+  Authentication,
+  validate(reviewerValidation.verifyCode),
+  reviewerController.verifyCode
 );
 
 module.exports = router;

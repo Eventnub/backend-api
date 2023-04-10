@@ -3,11 +3,17 @@ const ApiError = require("../utils/ApiError");
 const catchAsync = require("../utils/catchAsync");
 const { reviewerService } = require("../services");
 
-const sendPhoneNumberVerificationCode = catchAsync(async (req, res) => {
-  await reviewerService.sendPhoneNumberVerificationCode(req.body, req.user);
+const sendEmailVerificationCode = catchAsync(async (req, res) => {
+  await reviewerService.sendEmailVerificationCode(req.user);
+  res.status(httpStatus.OK).send();
+});
+
+const verifyCode = catchAsync(async (req, res) => {
+  await reviewerService.verifyCode(req.body.code, req.user);
   res.status(httpStatus.OK).send();
 });
 
 module.exports = {
-  sendPhoneNumberVerificationCode,
+  sendEmailVerificationCode,
+  verifyCode,
 };

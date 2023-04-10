@@ -2,9 +2,9 @@ const nodemailer = require("nodemailer");
 const config = require("../config/config");
 const logger = require("../config/logger");
 
-let mainStyle = "margin: 0 20px 0 20px; font-size: 14px;";
-let headerStyle =
-  "display: flex; justify-content: center; width: 100%; margin-bottom: 34px";
+let mainStyle =
+  "margin: 1.5em 1.5em 0 1.5em; font-size: 14px; background-color: #f4f2fc; border: 0.1em #dfdaf7 solid;";
+let bodyStyle = "padding: 1.5em;";
 let footerStyle =
   "width: 100%; background-color: #4485fd; color: #ffffff; padding: 40px 0px; font-size: 24px; margin-top: 34px; text-align: center;";
 
@@ -25,24 +25,17 @@ const sendBoughtTicketEmail = async (data) => {
   const subject = "Ticket Purchase";
   const html = `
     <div style="${mainStyle}">
-        <div style="${headerStyle}">
-          <img 
-            style="margin: auto; height: 120px; width: 120px; border-radius: 50%;" 
-            src="https://eventnub.netlify.app/static/media/bg.d306ac52.jpg" 
-            loading="lazy"
-            alt="eventnub"
-          />
+        <div style="${bodyStyle}">
+          <p>Hello <b>${data.userName}</b></p>
+
+          <p>Thanks for your purchase.<p>
+
+          <p>
+              Here is a confirmation for your receipt for 
+              <b>${data.eventName}</b> which holds on <b>${data.eventDate}</b>.
+              Click <a href='${data.ticketUrl}'>here</a> to view and download your ticket.
+          <p>
         </div>
-
-        <p>Hello <b>${data.userName}</b></p>
-
-        <p>Thanks for your purchase.<p>
-
-        <p>
-            Here is a confirmation for your receipt for 
-            <b>${data.eventName}</b> which holds on <b>${data.eventDate}</b>.
-            Click <a href='${data.ticketUrl}'>here</a> to view and download your ticket.
-        <p>
 
         <div style="${footerStyle}">
           <h4 style="margin: auto 0px; color: #ffffff;">Eventnub</h4>
@@ -58,35 +51,53 @@ const sendWonTicketEmail = async (data) => {
   const subject = "Ticket Won";
   const html = `
     <div style="${mainStyle}">
-        <div style="${headerStyle}">
-          <img 
-            style="margin: auto; height: 120px; width: 120px; border-radius: 50%;" 
-            src="https://eventnub.netlify.app/static/media/bg.d306ac52.jpg" 
-            loading="lazy"
-            alt="eventnub"
-          />
+        <div style="${bodyStyle}">
+          <p>Congratulations <b>${data.userName}!</b></p>
+
+          <p>You are one of the winners of the <b>${data.playedGame}</b> on Eventnub platform.<p>
+
+          <p>
+              Here is a confirmation for your receipt for 
+              <b>${data.eventName}</b> which holds on <b>${data.eventDate}</b>.
+              Click <a href='${data.ticketUrl}'>here</a> to view and download your ticket.
+          <p>
+
+          <p>
+            Congrats once again! 🎉🎉
+          </p>
+
+          <p>
+            Cheers to  better bonding with your fav! 🎊🎉
+          </p>
         </div>
 
-        <p>Congratulations <b>${data.userName}!</b></p>
+        <div style="${footerStyle}">
+          <h4 style="margin: auto 0px; color: #ffffff;">Eventnub</h4>
+        </div>
+    <div>
+  `;
+  await sendEmail(from, to, subject, html);
+};
 
-        <p>You are one of the winners of the <b>${data.playedGame}</b> on Eventnub platform.<p>
+const sendEmailVerificatonCodeForReviewerSignup = async (data) => {
+  const from = "Eventnub <admin@eventnub.com>";
+  const to = data.userEmail;
+  const subject = "Reviewer Email Verification";
+  const html = `
+    <div style="${mainStyle}">
+        <div style="${bodyStyle}">
+          <p>
+            You are intending to be a reviewer (validator) on Eventnub.
+            Here is your verification code and it expires in 5 minutes
+          </p>
 
-        <p>
-            Here is a confirmation for your receipt for 
-            <b>${data.eventName}</b> which holds on <b>${data.eventDate}</b>.
-            Click <a href='${data.ticketUrl}'>here</a> to view and download your ticket.
-        <p>
-
-        <p>
-          Congrats once again! 🎉🎉
-        </p>
-
-        <p>
-          Cheers to  better bonding with your fav! 🎊🎉
-        </p>
+          <p style='font-size: 2em; color: #6D5D6E;'>
+            ${data.code}
+          <p>
+        </div>
 
         <div style="${footerStyle}">
-          <h4 style="margin: auto 0px;">Eventnub</h4>
+          <h4 style="margin: auto 0px; color: #ffffff;">Eventnub</h4>
         </div>
     <div>
   `;
@@ -97,4 +108,5 @@ module.exports = {
   transport,
   sendBoughtTicketEmail,
   sendWonTicketEmail,
+  sendEmailVerificatonCodeForReviewerSignup,
 };
