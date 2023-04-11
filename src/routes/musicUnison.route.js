@@ -63,4 +63,13 @@ router
     musicUnisonController.submitEventMusicUnisonAudio
   );
 
+router
+  .route("/review-user-music-submission")
+  .post(
+    Authentication,
+    Authorization(["admin"]),
+    validate(musicUnisonValidation.reviewUserMusicUnisonSubmission),
+    musicUnisonController.reviewUserMusicUnisonSubmission
+  );
+
 module.exports = router;

@@ -176,8 +176,8 @@ const submitEventMusicUnisonAudio = async (
     userId: submitter.uid,
     audioUrl,
     createdAt: Date.now(),
-    isScored: false,
-    scoredAt: 0,
+    isReviewed: false,
+    reviewedAt: 0,
     accuracyRatio: 0,
   };
 
@@ -190,6 +190,76 @@ const submitEventMusicUnisonAudio = async (
   return { ...musicUnisonResult };
 };
 
+const getMusicUnisonResultById = async (uid) => {
+  try {
+    const user = await admin
+      .firestore()
+      .collection("musicUnisonResults")
+      .doc(uid)
+      .get();
+    return user.data();
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+  }
+};
+
+const reviewUserMusicUnisonSubmission = async (
+  musicUnisonSubmissionId,
+  wrongWords,
+  reviewer
+) => {
+  const musicUnisonSubmission = await getMusicUnisonResultById(
+    musicUnisonSubmissionId
+  );
+  if (!musicUnisonSubmission) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      "Music unison submission not found"
+    );
+  }
+  if (musicUnisonSubmission.isReviewed) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Music unison submission has already been scored"
+    );
+  }
+
+  const musicUnison = await getMusicUnisonById(
+    musicUnisonSubmission.musicUnisonId,
+    { role: "admin" }
+  );
+  if (!musicUnison) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Music unison not found");
+  }
+
+  const allWordsInSongLyrics = musicUnison.songLyrics
+    .replace(",", "")
+    .split(" ");
+  const allWrongWordsInSubmission = wrongWords.split(",");
+  const accuracyRatio = parseFloat(
+    (
+      1 -
+      allWrongWordsInSubmission.length / allWordsInSongLyrics.length
+    ).toFixed(2)
+  );
+
+  const updateBody = {
+    accuracyRatio,
+    isReviewed: true,
+    reviewedAt: Date.now(),
+    reviewer: reviewer.uid,
+    wrongWords: allWrongWordsInSubmission,
+  };
+
+  await admin
+    .firestore()
+    .collection("musicUnisonResults")
+    .doc(musicUnisonSubmissionId)
+    .update(updateBody);
+
+  return updateBody;
+};
+
 module.exports = {
   createMusicUnison,
   getMusicUnisonById,
@@ -198,4 +268,5 @@ module.exports = {
   getEventMusicUnisonsByEventId,
   transcribeAudio,
   submitEventMusicUnisonAudio,
+  reviewUserMusicUnisonSubmission,
 };

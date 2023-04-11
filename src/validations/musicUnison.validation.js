@@ -55,6 +55,13 @@ const submitEventMusicUnisonAudio = {
   file: Joi.string().required(),
 };
 
+const reviewUserMusicUnisonSubmission = {
+  body: Joi.object().keys({
+    musicUnisonSubmissionId: Joi.string().required(),
+    wrongWords: Joi.string().required(),
+  }),
+};
+
 module.exports = {
   createMusicUnison,
   getMusicUnison,
@@ -63,4 +70,5 @@ module.exports = {
   getEventMusicUnisons,
   transcribeAudio,
   submitEventMusicUnisonAudio,
+  reviewUserMusicUnisonSubmission
 };
