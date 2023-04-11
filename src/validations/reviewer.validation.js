@@ -13,7 +13,16 @@ const verifyCode = {
   }),
 };
 
+const submitIdDocument = {
+  body: Joi.object().keys({
+    verificationCodeId: Joi.string().required(),
+  }),
+  frontImagePhoto: Joi.string().required(),
+  frontImagePhoto: Joi.string().required(),
+};
+
 module.exports = {
   sendEmailVerificationCode,
   verifyCode,
+  submitIdDocument,
 };
