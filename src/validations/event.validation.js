@@ -25,9 +25,6 @@ const createEvent = {
       )
       .required(),
     isArchived: Joi.boolean().default(false),
-    hasQuiz: Joi.boolean().default(true),
-    hasRaffleDraw: Joi.boolean().default(true),
-    hasMusicUnison: Joi.boolean().default(true),
     gameStartTimestamp: Joi.number().default(0),
     gameEndTimestamp: Joi.number().default(0),
   }),
@@ -71,9 +68,6 @@ const updateEvent = {
         .min(1)
     ),
     isArchived: Joi.boolean(),
-    hasQuiz: Joi.boolean(),
-    hasRaffleDraw: Joi.boolean(),
-    hasMusicUnison: Joi.boolean(),
     gameStartTimestamp: Joi.number(),
     gameEndTimestamp: Joi.number(),
   }),
