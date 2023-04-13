@@ -174,6 +174,7 @@ const submitEventMusicUnisonAudio = async (
     uid,
     musicUnisonId,
     userId: submitter.uid,
+    eventId: musicUnison.eventId,
     audioUrl,
     createdAt: Date.now(),
     isReviewed: false,
@@ -188,6 +189,20 @@ const submitEventMusicUnisonAudio = async (
     .set(musicUnisonResult);
 
   return { ...musicUnisonResult };
+};
+
+const getMusicUnisonResultsByEventId = async (eventId) => {
+  try {
+    const snapshot = await admin
+      .firestore()
+      .collection("musicUnisonResults")
+      .where("eventId", "==", eventId)
+      .get();
+    const musicUnisonResults = snapshot.docs.map((doc) => doc.data());
+    return musicUnisonResults;
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+  }
 };
 
 const getMusicUnisonResultById = async (uid) => {
@@ -293,4 +308,5 @@ module.exports = {
   submitEventMusicUnisonAudio,
   reviewUserMusicUnisonSubmission,
   getUnreviewedMusicUnisonSubmissions,
+  getMusicUnisonResultsByEventId,
 };

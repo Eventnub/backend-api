@@ -134,14 +134,16 @@ const getQuizResultsByEventId = async (eventId) => {
   return quizResults;
 };
 
-const getQuizWinnersByEventId = async (eventId) => {
+const getQuizAndMusicUnisonWinnersByEventId = async (eventId) => {
   const snapshot = await admin
     .firestore()
-    .collection("quizWinners")
+    .collection("quizAndMusicUnisonWinners")
     .where("eventId", "==", eventId)
     .get();
-  const quizWinners = snapshot.empty ? null : snapshot.docs.at(0).data();
-  return quizWinners;
+  const quizAndMusicUnisonWinners = snapshot.empty
+    ? null
+    : snapshot.docs.at(0).data();
+  return quizAndMusicUnisonWinners;
 };
 
 const getEventQuizByEventId = async (eventId, role) => {
@@ -268,9 +270,11 @@ const rewardTicketWinners = async (rewardData) => {
 };
 
 const getEventQuizWinnersByEventId = async (eventId, role) => {
-  let quizWinners = await getQuizWinnersByEventId(eventId);
+  let quizAndMusicUnisonWinners = await getQuizAndMusicUnisonWinnersByEventId(
+    eventId
+  );
 
-  if (!quizWinners) {
+  if (!quizAndMusicUnisonWinners) {
     const event = await getEventById(eventId);
     if (event && event.quizEndTimestamp > Date.now()) {
       throw new ApiError(
@@ -280,6 +284,7 @@ const getEventQuizWinnersByEventId = async (eventId, role) => {
     }
 
     const quizResults = await getQuizResultsByEventId(eventId);
+    const musicUnisonResults = await getMusicUnisonResultsByEventId(eventId);
 
     if (quizResults.length === 0) {
       throw new ApiError(
@@ -288,23 +293,74 @@ const getEventQuizWinnersByEventId = async (eventId, role) => {
       );
     }
 
-    const sortedQuizResults = quizResults.sort((a, b) => {
-      if (a.numberOfPasses < b.numberOfPasses) return 1;
-      if (a.numberOfPasses > b.numberOfPasses) return -1;
+    if (musicUnisonResults.length === 0) {
+      throw new ApiError(
+        httpStatus.NOT_FOUND,
+        "There are no results for this event's music unsion"
+      );
+    }
+
+    const quizAndMusicUnisonResults = quizResults.forEach((quizResult) => {
+      const [musicUnisonResult] = musicUnisonResults.filter(
+        (musicUnisonResult) =>
+          quizResult.userId === musicUnisonResult.userId &&
+          quizResult.eventId === musicUnisonResult.eventId
+      );
+
+      if (!musicUnisonResult) {
+        const totalScore = parseFloat(
+          (
+            (quizResult.numberOfPasses / quizResult.numberOfQuestions) *
+            100
+          ).toFixed(6)
+        );
+
+        return {
+          userId: quizResult.userId,
+          eventId: quizResult.eventId,
+          quizResultId: quizResult.uid,
+          musicUnisonResultId: "",
+          totalScore,
+        };
+      }
+
+      if (!musicUnisonResult.isReviewed) {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          "There is an unreviewed music unsion submission"
+        );
+      }
+
+      const totalScore = parseFloat(
+        (
+          (quizResult.numberOfPasses / quizResult.numberOfQuestions +
+            musicUnisonResult.accuracyRation) *
+          100
+        ).toFixed(6)
+      );
+
+      return {
+        userId: quizResult.userId || musicUnisonResult.userId,
+        eventId: quizResult.eventId || musicUnisonResult.eventId,
+        quizResultId: quizResult.uid,
+        musicUnisonResultId: musicUnisonResult.uid,
+        totalScore,
+      };
     });
 
-    const slicedQuizResults = sortedQuizResults.slice(0, 5);
+    const sortedQuizAndMusicUnisonResultsizResults =
+      quizAndMusicUnisonResults.sort((a, b) => {
+        if (a.totalScore < b.totalScore) return 1;
+        if (a.totalScore > b.totalScore) return -1;
+      });
 
-    const winners = slicedQuizResults.map((result) => ({
-      userId: result.userId,
-      resultId: result.uid,
-    }));
+    const winners = sortedQuizAndMusicUnisonResultsizResults.slice(0, 5);
 
     const users = await getUsers();
     const rewardData = winners.map((winner) => {
       const [user] = users.filter((user) => user.uid === winner.userId);
       const [result] = quizResults.filter(
-        (result) => result.uid === winner.resultId
+        (result) => result.uid === winner.quizResultId
       );
       const acquiredTicket = {
         userId: user.uid,
@@ -318,26 +374,30 @@ const getEventQuizWinnersByEventId = async (eventId, role) => {
         userEmail: user.email,
         eventName: event.name,
         eventDate: event.date,
-        playedGame: "quiz",
+        playedGame: "Quiz and Music Unison",
         ticketUrl: `https://eventnub.netlify.app/dashboard/tickets`,
       };
 
       return { acquiredTicket, emailData };
     });
-    await rewardTicketWinners(rewardData);
+    // await rewardTicketWinners(rewardData);
 
-    const uid = generateFirebaseId("quizWinners");
-    quizWinners = {
+    const uid = generateFirebaseId("quizAndMusicUnisonWinners");
+    quizAndMusicUnisonWinners = {
       uid,
       eventId,
       winners,
       createdAt: Date.now(),
     };
 
-    await admin.firestore().collection("quizWinners").doc(uid).set(quizWinners);
+    await admin
+      .firestore()
+      .collection("quizAndMusicUnisonWinners")
+      .doc(uid)
+      .set(quizAndMusicUnisonWinners);
   }
 
-  return quizWinners;
+  return quizAndMusicUnisonWinners;
 };
 
 // Added here to avoid circular dependency issue
@@ -359,5 +419,5 @@ module.exports = {
   deleteQuestionById,
   getEventQuizByEventId,
   submitEventQuizAnswersByEventId,
-  getEventQuizWinnersByEventId
+  getEventQuizWinnersByEventId,
 };
