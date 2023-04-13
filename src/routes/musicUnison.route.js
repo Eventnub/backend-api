@@ -46,13 +46,15 @@ router
     musicUnisonController.getEventMusicUnisons
   );
 
-router.route("/transcribe-audio").post(
-  Authentication,
-  Authorization(["admin", "host"]),
-  multerConfig.single("audio"),
-  validate(musicUnisonValidation.transcribeAudio),
-  musicUnisonController.transcribeAudio
-);
+router
+  .route("/transcribe-audio")
+  .post(
+    Authentication,
+    Authorization(["admin", "host"]),
+    multerConfig.single("audio"),
+    validate(musicUnisonValidation.transcribeAudio),
+    musicUnisonController.transcribeAudio
+  );
 
 router
   .route("/submit-event-music-unison-audio")
@@ -61,6 +63,14 @@ router
     multerConfig.single("audio"),
     validate(musicUnisonValidation.submitEventMusicUnisonAudio),
     musicUnisonController.submitEventMusicUnisonAudio
+  );
+
+router
+  .route("/get-unreviewed-music-unison-submissions")
+  .post(
+    Authentication,
+    Authorization(["admin"]),
+    musicUnisonController.getUnreviewedMusicUnisonSubmissions
   );
 
 router
