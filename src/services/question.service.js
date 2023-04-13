@@ -204,7 +204,7 @@ const submitEventQuizAnswersByEventId = async (
   }
 
   const event = await getEventById(eventId);
-  if (event && Date.now() > event.quizEndTimestamp) {
+  if (event && Date.now() > event.gameEndTimestamp) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
       "Submission of quiz answers has ended"
@@ -276,7 +276,7 @@ const getEventQuizWinnersByEventId = async (eventId, role) => {
 
   if (!quizAndMusicUnisonWinners) {
     const event = await getEventById(eventId);
-    if (event && event.quizEndTimestamp > Date.now()) {
+    if (event && event.gameEndTimestamp > Date.now()) {
       throw new ApiError(
         httpStatus.BAD_REQUEST,
         "Submission of quiz answers has not ended yet"

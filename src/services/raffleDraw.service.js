@@ -265,12 +265,12 @@ const getEventRaffleDrawWinnersByEventId = async (eventId, role) => {
 
   if (!raffleDrawWinners) {
     const event = await getEventById(eventId);
-    // if (event && event.raffleDrawEndTimestamp > Date.now()) {
-    //   throw new ApiError(
-    //     httpStatus.BAD_REQUEST,
-    //     "Submission of raffle draw choices has not ended yet"
-    //   );
-    // }
+    if (event && event.gameEndTimestamp > Date.now()) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "Submission of raffle draw choices has not ended yet"
+      );
+    }
 
     const raffleDrawResults = await getRaffleDrawResultsByEventId(eventId);
 
