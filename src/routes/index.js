@@ -9,6 +9,7 @@ const inviteRoute = require("./invite.route");
 const paymentRoute = require("./payment.route");
 const ticketRoute = require("./ticket.route");
 const musicUnisonRoute = require("./musicUnison.route");
+const quizAndMusicUnisonRoute = require("./quizAndMusicUnison.route");
 const reviewerRoute = require("./reviewer.route");
 
 const router = express.Router();
@@ -53,6 +54,10 @@ const routes = [
   {
     path: "/music-unison",
     route: musicUnisonRoute,
+  },
+  {
+    path: "/quiz-and-music-unison",
+    route: quizAndMusicUnisonRoute,
   },
   {
     path: "/reviewers",

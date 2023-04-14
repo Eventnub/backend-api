@@ -56,18 +56,11 @@ const submitEventQuizAnswers = {
   }),
 };
 
-const getEventQuizWinners = {
-  params: Joi.object().keys({
-    eventId: Joi.required().custom(documentId),
-  }),
-};
-
 module.exports = {
   createQuestion,
   getQuestion,
   updateQuestion,
   deleteQuestion,
   getEventQuiz,
-  submitEventQuizAnswers,
-  getEventQuizWinners
+  submitEventQuizAnswers
 };

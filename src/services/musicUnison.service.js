@@ -219,17 +219,13 @@ const getMusicUnisonResultById = async (uid) => {
 };
 
 const getUnreviewedMusicUnisonSubmissions = async () => {
-  let snapshot = await admin
-    .firestore()
-    .collection("musicUnisonResults")
-    .where("isReviewed", "==", false)
-    .get();
-  const musicUnisonSubmissions = snapshot.docs.map((doc) => doc.data());
+  let snapshot = await admin.firestore().collection("musicUnisonResults").get();
+  let musicUnisonSubmissions = snapshot.docs.map((doc) => doc.data());
 
   snapshot = await admin.firestore().collection("musicUnisons").get();
   const musicUnisons = snapshot.docs.map((doc) => doc.data());
 
-  musicUnisonSubmissions = musicUnisonSubmissions.forEach((submission) => {
+  musicUnisonSubmissions = musicUnisonSubmissions.map((submission) => {
     const [submissionMusicUnison] = musicUnisons.filter(
       (musicUnison) => musicUnison.uid === submission.musicUnisonId
     );
