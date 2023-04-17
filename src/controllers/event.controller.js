@@ -61,6 +61,11 @@ const getCreatorEvents = catchAsync(async (req, res) => {
   res.send(result);
 });
 
+const getUnapprovedEvents = catchAsync(async (req, res) => {
+  const result = await eventService.getUnapprovedEvents();
+  res.send(result);
+});
+
 module.exports = {
   createEvent,
   getEvents,
@@ -70,4 +75,5 @@ module.exports = {
   likeOrUnlikeEvent,
   approveEvent,
   getCreatorEvents,
+  getUnapprovedEvents
 };

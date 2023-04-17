@@ -196,6 +196,16 @@ const getCreatorEventsByCreatorId = async (creatorId, requester) => {
   return events;
 };
 
+const getUnapprovedEvents = async () => {
+  const snapshot = await admin
+    .firestore()
+    .collection("events")
+    .where("isApproved", "==", false)
+    .get();
+  const events = snapshot.docs.map((doc) => doc.data());
+  return events;
+};
+
 module.exports = {
   createEvent,
   getEvents,
@@ -205,4 +215,5 @@ module.exports = {
   likeOrUnlikeEventById,
   approveEventById,
   getCreatorEventsByCreatorId,
+  getUnapprovedEvents,
 };
