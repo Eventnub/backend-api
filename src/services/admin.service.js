@@ -46,14 +46,25 @@ const register = async (adminBody) => {
 };
 
 const login = async (email, password) => {
-  await firebase.auth().signInWithEmailAndPassword(email, password);
-  const idToken = await firebase.auth().currentUser.getIdToken();
-  const user = await admin.auth().verifyIdToken(idToken);
-  await firebase.auth().signOut();
-  if (user.role !== "admin") {
-    throw new ApiError(httpStatus.UNAUTHORIZED, "Not an admin");
+  try {
+    await firebase.auth().signInWithEmailAndPassword(email, password);
+    const idToken = await firebase.auth().currentUser.getIdToken();
+    const user = await admin.auth().verifyIdToken(idToken);
+    await firebase.auth().signOut();
+    if (user.role !== "admin") {
+      throw new ApiError(httpStatus.UNAUTHORIZED, "Not an admin");
+    }
+    return { idToken };
+  } catch (error) {
+    if (error.code === "auth/user-not-found") {
+      throw new ApiError(
+        httpStatus.NOT_FOUND,
+        "Admin with credentials not found"
+      );
+    } else {
+      throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+    }
   }
-  return { idToken };
 };
 
 module.exports = {

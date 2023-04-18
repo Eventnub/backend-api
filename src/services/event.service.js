@@ -3,6 +3,7 @@ const ApiError = require("../utils/ApiError");
 const { getUserById } = require("./user.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { uploadFile, deleteFile } = require("./fileStorage.service");
+const { sendNewEventNotificationEmail } = require("./email.service");
 
 const createEvent = async (creator, photoFile, eventBody) => {
   const uid = generateFirebaseId("events");
@@ -30,6 +31,9 @@ const createEvent = async (creator, photoFile, eventBody) => {
     .collection("events")
     .doc(uid)
     .set({ ...eventBody });
+
+  // Notify the admin of a new event by a host
+  await sendNewEventNotificationEmail(creator.email, uid);
 
   return { ...eventBody };
 };

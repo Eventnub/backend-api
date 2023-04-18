@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const ejs = require("ejs");
 const config = require("../config/config");
 const logger = require("../config/logger");
 
@@ -104,9 +105,22 @@ const sendEmailVerificatonCodeForReviewerSignup = async (data) => {
   await sendEmail(from, to, subject, html);
 };
 
+const sendNewEventNotificationEmail = async (creatorEmail, eventId) => {
+  const from = "Eventnub <admin@eventnub.com>";
+  const to = "therealofoji@gmail.com";
+  const subject = "New Event";
+  const template = await ejs.renderFile("src/templates/newEvent.ejs", {
+    creatorEmail,
+    link: `https://eventnub-admin.netlify.app/dashboard/unapproved-events/${eventId}`,
+  });
+
+  await sendEmail(from, to, subject, template);
+};
+
 module.exports = {
   transport,
   sendBoughtTicketEmail,
   sendWonTicketEmail,
   sendEmailVerificatonCodeForReviewerSignup,
+  sendNewEventNotificationEmail,
 };
