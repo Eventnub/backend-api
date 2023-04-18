@@ -38,13 +38,22 @@ const createEvent = async (creator, photoFile, eventBody) => {
   return { ...eventBody };
 };
 
-const getEvents = async () => {
-  const snapshot = await admin
-    .firestore()
-    .collection("events")
-    .where("isApproved", "==", true)
-    .where("isArchived", "==", false)
-    .get();
+const getEvents = async (includeArchived) => {
+  let snapshot;
+  if (includeArchived) {
+    snapshot = await admin
+      .firestore()
+      .collection("events")
+      .where("isApproved", "==", true)
+      .get();
+  } else {
+    snapshot = await admin
+      .firestore()
+      .collection("events")
+      .where("isApproved", "==", true)
+      .where("isArchived", "==", false)
+      .get();
+  }
   const events = snapshot.docs.map((doc) => doc.data());
   return events;
 };

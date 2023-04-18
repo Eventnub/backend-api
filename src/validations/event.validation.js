@@ -33,7 +33,7 @@ const createEvent = {
 
 const getEvents = {
   query: Joi.object().keys({
-    date: Joi.string(),
+    includeArchived: Joi.boolean(),
   }),
 };
 
