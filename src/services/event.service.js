@@ -39,7 +39,7 @@ const createEvent = async (creator, photoFile, eventBody) => {
 };
 
 const getEvents = async (queryBody) => {
-  const { includeArchived, onlyUnapproved } = queryBody;
+  const { includeArchived, onlyUnapproved, onlyArchived } = queryBody;
 
   let snapshot;
   if (includeArchived) {
@@ -53,6 +53,12 @@ const getEvents = async (queryBody) => {
       .firestore()
       .collection("events")
       .where("isApproved", "==", false)
+      .get();
+  } else if (onlyArchived) {
+    snapshot = await admin
+      .firestore()
+      .collection("events")
+      .where("isArchived", "==", true)
       .get();
   } else {
     snapshot = await admin
