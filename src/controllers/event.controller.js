@@ -9,7 +9,7 @@ const createEvent = catchAsync(async (req, res) => {
 });
 
 const getEvents = catchAsync(async (req, res) => {
-  const events = await eventService.getEvents(req.query.includeArchived);
+  const events = await eventService.getEvents(req.query);
   res.send(events);
 });
 
@@ -61,11 +61,6 @@ const getCreatorEvents = catchAsync(async (req, res) => {
   res.send(result);
 });
 
-const getUnapprovedEvents = catchAsync(async (req, res) => {
-  const result = await eventService.getUnapprovedEvents();
-  res.send(result);
-});
-
 module.exports = {
   createEvent,
   getEvents,
@@ -74,6 +69,5 @@ module.exports = {
   deleteEvent,
   likeOrUnlikeEvent,
   approveEvent,
-  getCreatorEvents,
-  getUnapprovedEvents,
+  getCreatorEvents
 };

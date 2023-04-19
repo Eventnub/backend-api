@@ -34,6 +34,7 @@ const createEvent = {
 const getEvents = {
   query: Joi.object().keys({
     includeArchived: Joi.boolean(),
+    onlyUnapproved: Joi.boolean(),
   }),
 };
 

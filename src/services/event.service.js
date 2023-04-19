@@ -38,13 +38,21 @@ const createEvent = async (creator, photoFile, eventBody) => {
   return { ...eventBody };
 };
 
-const getEvents = async (includeArchived) => {
+const getEvents = async (queryBody) => {
+  const { includeArchived, onlyUnapproved } = queryBody;
+
   let snapshot;
   if (includeArchived) {
     snapshot = await admin
       .firestore()
       .collection("events")
       .where("isApproved", "==", true)
+      .get();
+  } else if (onlyUnapproved) {
+    snapshot = await admin
+      .firestore()
+      .collection("events")
+      .where("isApproved", "==", false)
       .get();
   } else {
     snapshot = await admin
@@ -209,16 +217,6 @@ const getCreatorEventsByCreatorId = async (creatorId, requester) => {
   return events;
 };
 
-const getUnapprovedEvents = async () => {
-  const snapshot = await admin
-    .firestore()
-    .collection("events")
-    .where("isApproved", "==", false)
-    .get();
-  const events = snapshot.docs.map((doc) => doc.data());
-  return events;
-};
-
 module.exports = {
   createEvent,
   getEvents,
@@ -228,5 +226,4 @@ module.exports = {
   likeOrUnlikeEventById,
   approveEventById,
   getCreatorEventsByCreatorId,
-  getUnapprovedEvents,
 };

@@ -60,12 +60,4 @@ router
     eventController.getCreatorEvents
   );
 
-router
-  .route("/unapproved-events/get-all")
-  .get(
-    Authentication,
-    Authorization(["admin"]),
-    eventController.getUnapprovedEvents
-  );
-
 module.exports = router;
