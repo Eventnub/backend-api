@@ -1,6 +1,7 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
 const shuffle = require("../utils/shuffle");
+const { genNValuesInRange } = require("../utils/generator");
 const { sendWonTicketEmail } = require("./email.service");
 const { getEventById } = require("./event.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
@@ -42,17 +43,11 @@ const createRaffleDraw = async (creator, raffleDrawBody) => {
   raffleDrawBody.createdAt = Date.now();
   raffleDrawBody.updatedAt = Date.now();
 
-  raffleDrawBody.chosenNumbers.forEach((number) => {
-    if (
-      number < raffleDrawBody.firstNumber ||
-      number > raffleDrawBody.lastNumber
-    ) {
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        `Chosen numbers must be between ${raffleDrawBody.firstNumber} and ${raffleDrawBody.lastNumber}`
-      );
-    }
-  });
+  raffleDrawBody.chosenNumbers = genNValuesInRange(
+    5,
+    raffleDrawBody.firstNumber,
+    raffleDrawBody.lastNumber
+  );
 
   await admin
     .firestore()
@@ -60,7 +55,7 @@ const createRaffleDraw = async (creator, raffleDrawBody) => {
     .doc(uid)
     .set({ ...raffleDrawBody });
 
-  return { ...raffleDrawBody };
+  return raffleDrawBody;
 };
 
 const getRaffleDrawById = async (uid, role) => {
@@ -90,34 +85,23 @@ const updateRaffleDrawById = async (updater, uid, updateBody) => {
     );
   }
 
-  const firstNumber = updateBody.firstNumber
+  updateBody.firstNumber = updateBody.firstNumber
     ? updateBody.firstNumber
     : raffleDraw.firstNumber;
-  const numbersCount = updateBody.numbersCount
+  updateBody.numbersCount = updateBody.numbersCount
     ? updateBody.numbersCount
     : raffleDraw.numbersCount;
-  const chosenNumbers = updateBody.chosenNumbers
-    ? updateBody.chosenNumbers
-    : raffleDraw.chosenNumbers;
+  updateBody.lastNumber = updateBody.firstNumber + updateBody.numbersCount - 1;
 
-  const lastNumber = firstNumber + numbersCount - 1;
-
-  chosenNumbers.forEach((number) => {
-    if (number < firstNumber || number > lastNumber) {
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        `Chosen numbers must be between ${firstNumber} and ${lastNumber}`
-      );
-    }
-  });
+  updateBody.chosenNumbers = genNValuesInRange(
+    5,
+    updateBody.firstNumber,
+    updateBody.lastNumber
+  );
 
   updateBody.updatedAt = Date.now();
 
-  await admin
-    .firestore()
-    .collection("raffleDraws")
-    .doc(uid)
-    .update({ ...updateBody });
+  await admin.firestore().collection("raffleDraws").doc(uid).update(updateBody);
   return updateBody;
 };
 

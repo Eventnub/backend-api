@@ -5,12 +5,7 @@ const createRaffleDraw = {
   body: Joi.object().keys({
     eventId: Joi.string().required(),
     firstNumber: Joi.number().required(),
-    numbersCount: Joi.number().default(50),
-    chosenNumbers: Joi.array()
-      .items(Joi.number().required())
-      .unique()
-      .length(5)
-      .required(),
+    numbersCount: Joi.number().default(50)
   }),
 };
 
@@ -26,11 +21,7 @@ const updateRaffleDraw = {
   }),
   body: Joi.object().keys({
     firstNumber: Joi.number(),
-    numbersCount: Joi.number().default(50),
-    chosenNumbers: Joi.array()
-      .items(Joi.number().required())
-      .unique()
-      .length(5),
+    numbersCount: Joi.number().default(50)
   }),
 };
 
