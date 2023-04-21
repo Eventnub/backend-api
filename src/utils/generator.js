@@ -9,12 +9,14 @@ const generateCode = (len = 4) => {
 
 const genNValuesInRange = (n, start, end) => {
   const values = [];
-  for (let i = 0; i < n; i++) {
+  while (values.length < n) {
     const floatRandom = Math.random();
     const difference = end - start;
     const random = Math.round(difference * floatRandom);
     const randomWithinRange = random + start;
-    values.push(randomWithinRange);
+    if (!values.includes(randomWithinRange)) {
+      values.push(randomWithinRange);
+    }
   }
   return values;
 };
