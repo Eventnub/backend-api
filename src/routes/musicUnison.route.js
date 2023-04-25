@@ -42,8 +42,17 @@ router
   .route("/get-event-music-unisons/:eventId")
   .get(
     Authentication,
+    Authorization(["admin", "host"]),
     validate(musicUnisonValidation.getEventMusicUnisons),
     musicUnisonController.getEventMusicUnisons
+  );
+
+router
+  .route("/get-event-music-unison/:eventId")
+  .get(
+    Authentication,
+    validate(musicUnisonValidation.getEventMusicUnison),
+    musicUnisonController.getEventMusicUnison
   );
 
 router

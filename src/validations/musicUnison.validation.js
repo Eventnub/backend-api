@@ -41,6 +41,12 @@ const getEventMusicUnisons = {
   }),
 };
 
+const getEventMusicUnison = {
+  params: Joi.object().keys({
+    eventId: Joi.required().custom(documentId),
+  }),
+};
+
 const transcribeAudio = {
   body: Joi.object().keys({
     service: Joi.string().valid("deepgram", "google").required(),
@@ -68,7 +74,8 @@ module.exports = {
   updateMusicUnison,
   deleteMusicUnison,
   getEventMusicUnisons,
+  getEventMusicUnison,
   transcribeAudio,
   submitEventMusicUnisonAudio,
-  reviewUserMusicUnisonSubmission
+  reviewUserMusicUnisonSubmission,
 };

@@ -46,6 +46,14 @@ const getEventMusicUnisons = catchAsync(async (req, res) => {
   res.send(musicUnisons);
 });
 
+const getEventMusicUnison = catchAsync(async (req, res) => {
+  const musicUnison = await musicUnisonService.getEventMusicUnisonByEventId(
+    req.params.eventId,
+    req.user
+  );
+  res.send(musicUnison);
+});
+
 const transcribeAudio = catchAsync(async (req, res) => {
   const transcription = await musicUnisonService.transcribeAudio(
     req.body.service,
@@ -83,6 +91,7 @@ module.exports = {
   updateMusicUnison,
   deleteMusicUnison,
   getEventMusicUnisons,
+  getEventMusicUnison,
   transcribeAudio,
   submitEventMusicUnisonAudio,
   getUnreviewedMusicUnisonSubmissions,

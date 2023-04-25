@@ -1,5 +1,6 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
+const shuffle = require("../utils/shuffle");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { uploadFile, deleteFile } = require("./fileStorage.service");
 const { getEventById } = require("./event.service");
@@ -139,6 +140,12 @@ const getEventMusicUnisonsByEventId = async (eventId, requester) => {
   });
 
   return musicUnisons;
+};
+
+const getEventMusicUnisonByEventId = async (eventId, requester) => {
+  let musicUnisons = await getEventMusicUnisonsByEventId(eventId, requester);
+  musicUnisons = shuffle(musicUnisons);
+  return musicUnisons.at(0);
 };
 
 const transcribeAudio = (service, audioFile) => {
@@ -300,6 +307,7 @@ module.exports = {
   updateMusicUnisonById,
   deleteMusicUnisonById,
   getEventMusicUnisonsByEventId,
+  getEventMusicUnisonByEventId,
   transcribeAudio,
   submitEventMusicUnisonAudio,
   reviewUserMusicUnisonSubmission,
