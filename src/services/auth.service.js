@@ -1,5 +1,6 @@
-const { firebase } = require("./firebase.service");
+const { admin, firebase } = require("./firebase.service");
 const { createUser } = require("./user.service");
+const { sendPasswordResetLink } = require("./email.service");
 
 const register = (userBody) => {
   return createUser(userBody);
@@ -12,8 +13,14 @@ const login = async (email, password) => {
   return { idToken };
 };
 
-const sendPasswordResetEmail = (email) => {
-  return firebase.auth().sendPasswordResetEmail(email);
+const sendPasswordResetEmail = async (email) => {
+  try {
+    await admin.auth().getUserByEmail(email);
+    const resetLink = await admin.auth().generatePasswordResetLink(email);
+    await emailService.sendPasswordResetLink(email, resetLink);
+  } catch (error) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User with email not found");
+  }
 };
 
 module.exports = {

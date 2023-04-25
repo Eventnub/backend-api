@@ -1,6 +1,7 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
-const { admin, firebase } = require("./firebase.service");
+const emailService = require("./email.service");
+const { admin } = require("./firebase.service");
 const { uploadFile, deleteFile } = require("./fileStorage.service");
 
 const createUser = async (userBody) => {
@@ -10,25 +11,23 @@ const createUser = async (userBody) => {
       password: userBody.password,
     });
 
-    await admin.auth().setCustomUserClaims(user.uid, { role: "user" });
-    const token = await admin.auth().createCustomToken(user.uid);
-    const result = await firebase.auth().signInWithCustomToken(token);
-    await result.user.sendEmailVerification();
-    await firebase.auth().signOut();
-
     userBody.uid = user.uid;
     userBody.role = "user";
     userBody.createdAt = Date.now();
     userBody.disabled = false;
     delete userBody["password"];
 
-    await admin
-      .firestore()
-      .collection("users")
-      .doc(user.uid)
-      .set({ ...userBody });
+    await admin.firestore().collection("users").doc(user.uid).set(userBody);
+    await admin.auth().setCustomUserClaims(user.uid, { role: "user" });
+    const verificationLink = await admin
+      .auth()
+      .generateEmailVerificationLink(userBody.email);
+    await emailService.sendEmailVerificationLink(
+      userBody.email,
+      verificationLink
+    );
 
-    return { ...userBody };
+    return userBody;
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.message);
   }

@@ -105,6 +105,28 @@ const sendEmailVerificatonCodeForReviewerSignup = async (data) => {
   await sendEmail(from, to, subject, html);
 };
 
+const sendEmailVerificationLink = async (userEmail, verificationLink) => {
+  const from = "Eventnub <admin@eventnub.com>";
+  const to = userEmail;
+  const subject = "Email Verification";
+  const template = await ejs.renderFile("src/templates/emailVerification.ejs", {
+    verificationLink,
+  });
+
+  await sendEmail(from, to, subject, template);
+};
+
+const sendPasswordResetLink = async (userEmail, resetLink) => {
+  const from = "Eventnub <admin@eventnub.com>";
+  const to = userEmail;
+  const subject = "Password Reset";
+  const template = await ejs.renderFile("src/templates/passwordReset.ejs", {
+    resetLink,
+  });
+
+  await sendEmail(from, to, subject, template);
+};
+
 const sendNewEventNotificationEmail = async (creatorEmail, eventId) => {
   const from = "Eventnub <admin@eventnub.com>";
   const to = "therealofoji@gmail.com";
@@ -122,5 +144,7 @@ module.exports = {
   sendBoughtTicketEmail,
   sendWonTicketEmail,
   sendEmailVerificatonCodeForReviewerSignup,
+  sendEmailVerificationLink,
+  sendPasswordResetLink,
   sendNewEventNotificationEmail,
 };
