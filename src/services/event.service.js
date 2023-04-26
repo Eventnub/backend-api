@@ -13,6 +13,7 @@ const createEvent = async (creator, photoFile, eventBody) => {
   eventBody.photoUrl = photoUrl;
   eventBody.createdAt = Date.now();
   eventBody.creatorId = creator.uid;
+  eventBody.creatorRole = creator.role;
 
   if (creator.role === "admin") {
     eventBody.isApproved = true;
