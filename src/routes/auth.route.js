@@ -29,4 +29,11 @@ router
     authController.sendForgotPasswordEmail
   );
 
+router
+  .route("/resend-email-verification-link")
+  .post(
+    validate(authValidation.resendEmailVerificationLink),
+    authController.resendEmailVerificationLink
+  );
+
 module.exports = router;

@@ -28,8 +28,24 @@ const sendPasswordResetEmail = async (email) => {
   }
 };
 
+const resendEmailVerificationLink = async (email) => {
+  try {
+    await admin.auth().getUserByEmail(email);
+    const verificationLink = await admin
+      .auth()
+      .generateEmailVerificationLink(email, {
+        url: "https://eventnub.netlify.app/auth/login",
+        handleCodeInApp: true,
+      });
+    await emailService.sendEmailVerificationLink(email, verificationLink);
+  } catch (error) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User with email not found");
+  }
+};
+
 module.exports = {
   register,
   login,
   sendPasswordResetEmail,
+  resendEmailVerificationLink,
 };

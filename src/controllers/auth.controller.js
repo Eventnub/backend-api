@@ -36,9 +36,15 @@ const sendForgotPasswordEmail = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const resendEmailVerificationLink = catchAsync(async (req, res) => {
+  await authService.resendEmailVerificationLink(req.body.email);
+  res.status(httpStatus.NO_CONTENT).send();
+});
+
 module.exports = {
   register,
   login,
   sendPasswordResetEmail,
   sendForgotPasswordEmail,
+  resendEmailVerificationLink,
 };

@@ -24,9 +24,16 @@ const sendForgotPasswordEmail = {
   }),
 };
 
+const resendEmailVerificationLink = {
+  body: Joi.object().keys({
+    email: Joi.string().email(),
+  }),
+};
+
 module.exports = {
   register,
   login,
   sendPasswordResetEmail,
-  sendForgotPasswordEmail
+  sendForgotPasswordEmail,
+  resendEmailVerificationLink,
 };
