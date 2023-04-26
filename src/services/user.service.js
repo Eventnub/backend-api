@@ -21,7 +21,10 @@ const createUser = async (userBody) => {
     await admin.auth().setCustomUserClaims(user.uid, { role: "user" });
     const verificationLink = await admin
       .auth()
-      .generateEmailVerificationLink(userBody.email);
+      .generateEmailVerificationLink(userBody.email, {
+        url: "https://eventnub.netlify.app/auth/login",
+        handleCodeInApp: true,
+      });
     await emailService.sendEmailVerificationLink(
       userBody.email,
       verificationLink

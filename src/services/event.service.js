@@ -26,16 +26,13 @@ const createEvent = async (creator, photoFile, eventBody) => {
     ...ticket,
   }));
 
-  await admin
-    .firestore()
-    .collection("events")
-    .doc(uid)
-    .set({ ...eventBody });
+  await admin.firestore().collection("events").doc(uid).set(eventBody);
 
-  // Notify the admin of a new event by a host
-  await sendNewEventNotificationEmail(creator.email, uid);
+  if (creator.role !== "admin") {
+    await sendNewEventNotificationEmail(creator.email, uid);
+  }
 
-  return { ...eventBody };
+  return eventBody;
 };
 
 const getEvents = async (queryBody) => {

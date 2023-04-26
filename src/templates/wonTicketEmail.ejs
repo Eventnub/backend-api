@@ -4,19 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-      integrity="sha512-rlI2M+cG1Lf6F2cLZ/YrTtTlTtV0oYJ0E7VpK9XuX7VHgNv0nGdSWEhLBNLeCnDbwvYxzYCO4M4X9/4iKgDtiw=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-    <title>Email Verification</title>
+    <title>Ticket Won</title>
     <style>
       /* Basic styles */
       body {
         font-family: "Open Sans", sans-serif;
-        background-color: #f1f1f1;
         color: #2f2f2f;
       }
       h1 {
@@ -106,12 +98,21 @@
   <body>
     <div class="background"></div>
     <div class="container">
-      <h1>Welcome to Eventnub!</h1>
-      <p>Please click the button below to verify your email:</p>
-      <a href="<%= verificationLink %>" class="button">Verify email </a>
+      <h1>Congratulations <%= userName %></h1>
+      <p>
+        You are one of the winners of the <b><%= playedGame %></b> on Eventnub
+        platform.
+      </p>
       <p></p>
-      <p>If you did not sign up for an account, please ignore this email.</p>
-      <p>Thank you!</p>
+      <p>
+        Here is a confirmation for your receipt for
+        <b><%= eventName %></b> which holds on <b><%= eventDate %></b>. Click on
+        the link below to view and download your ticket.
+      </p>
+      <a href="<%= ticketUrl %>" class="button">View ticket</a>
+      <p></p>
+      <p>Congrats once again! 🎉🎉</p>
+      <p>Cheers to better bonding with your fav! 🎊🎉</p>
       <div class="footer">
         <h4>Eventnub</h4>
       </div>

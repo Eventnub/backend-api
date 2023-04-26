@@ -4,9 +4,7 @@ const ApiError = require("../utils/ApiError");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { uploadFile, deleteFile } = require("./fileStorage.service");
 const { generateCode } = require("../utils/generator");
-const {
-  sendEmailVerificatonCodeForReviewerSignup,
-} = require("./email.service");
+const { sendReviewerVerificationCode } = require("./email.service");
 const { getUserById, updateUserById } = require("./user.service");
 
 const getVerificationCodeByUserId = async (code, userId) => {
@@ -48,7 +46,7 @@ const sendEmailVerificationCode = async (requester) => {
     const code = generateCode();
     const currentTime = Date.now();
 
-    sendEmailVerificatonCodeForReviewerSignup({
+    sendReviewerVerificationCode({
       userEmail: requester.email,
       code,
     });

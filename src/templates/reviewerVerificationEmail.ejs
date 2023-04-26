@@ -4,19 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-      integrity="sha512-rlI2M+cG1Lf6F2cLZ/YrTtTlTtV0oYJ0E7VpK9XuX7VHgNv0nGdSWEhLBNLeCnDbwvYxzYCO4M4X9/4iKgDtiw=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-    <title>Email Verification</title>
+    <title>Reviewer Email Verification</title>
     <style>
       /* Basic styles */
       body {
         font-family: "Open Sans", sans-serif;
-        background-color: #f1f1f1;
         color: #2f2f2f;
       }
       h1 {
@@ -43,21 +35,6 @@
         border-radius: 10px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       }
-      /* Button styles */
-      .button {
-        display: inline-block;
-        padding: 15px 30px;
-        background-color: #5d91e8;
-        color: #ffffff !important;
-        text-decoration: none;
-        border-radius: 5px;
-        margin-top: 30px;
-        transition: all 0.3s ease;
-      }
-      .button:hover {
-        background-color: #234683;
-        transform: translateY(-3px);
-      }
       /* Background styles */
       .background {
         background-image: url("https://i.imgur.com/jQQoX9E.jpg");
@@ -70,6 +47,10 @@
         height: 100%;
         z-index: -1;
         filter: brightness(0.7);
+      }
+      .code {
+        font-size: 2em;
+        color: #6d5d6e;
       }
       /* Footer styles */
       .footer {
@@ -96,22 +77,19 @@
         p {
           font-size: 16px;
         }
-        .button {
-          padding: 12px 24px;
-          margin-top: 20px;
-        }
       }
     </style>
   </head>
   <body>
     <div class="background"></div>
     <div class="container">
-      <h1>Welcome to Eventnub!</h1>
-      <p>Please click the button below to verify your email:</p>
-      <a href="<%= verificationLink %>" class="button">Verify email </a>
+      <h1>Hello <%= userName %></h1>
+      <p>
+        You are intending to be a reviewer (validator) on Eventnub. Here is your
+        verification code and it expires in 5 minutes
+      </p>
       <p></p>
-      <p>If you did not sign up for an account, please ignore this email.</p>
-      <p>Thank you!</p>
+      <p class="code"><%= code %</p>
       <div class="footer">
         <h4>Eventnub</h4>
       </div>
