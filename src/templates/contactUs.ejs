@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Contact Us</title>
+    <style>
+      /* Basic styles */
+      body {
+        font-family: "Open Sans", sans-serif;
+        color: #2f2f2f;
+      }
+      h1 {
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 30px;
+      }
+      p {
+        font-size: 18px;
+        margin-bottom: 20px;
+        line-height: 1.5;
+        text-align: justify;
+      }
+      a {
+        color: #ffffff;
+        text-decoration: none;
+      }
+      /* Container styles */
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      /* User data styles */
+      .user-data {
+        background-color: #f1f1f1;
+        color: #000 !important;
+        font-size: 0.8rem;
+        padding: 0.5rem;
+        border-radius: 10px;
+        font-style: italic;
+        margin-bottom: 1.2rem;
+      }
+      /* Background styles */
+      .background {
+        background-image: url("https://i.imgur.com/jQQoX9E.jpg");
+        background-size: cover;
+        background-position: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        filter: brightness(0.7);
+      }
+      /* Footer styles */
+      .footer {
+        width: 100%;
+        background-color: #4485fd;
+        color: #ffffff;
+        padding: 60px 0px;
+        font-size: 24px;
+        margin-top: 34px;
+        text-align: center;
+      }
+      .footer h4 {
+        margin: auto 0px;
+        color: #ffffff;
+      }
+      /* Media queries */
+      @media screen and (max-width: 768px) {
+        .container {
+          padding: 30px;
+        }
+        h1 {
+          font-size: 28px;
+        }
+        p {
+          font-size: 16px;
+        }
+        .button {
+          padding: 12px 24px;
+          margin-top: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="background"></div>
+    <div class="container">
+      <h1>Contact Us</h1>
+      <p>Name:</p>
+      <p class="user-data"><%= name %></p>
+      <p>Email:</p>
+      <p class="user-data"><%= email %></p>
+      <p>Message:</p>
+      <p class="user-data"><%= message %></p>
+      <div class="footer">
+        <h4>Eventnub</h4>
+      </div>
+    </div>
+  </body>
+</html>

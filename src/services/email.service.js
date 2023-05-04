@@ -92,6 +92,19 @@ const sendNewEventNotificationEmail = async (creatorEmail, eventId) => {
   await sendEmail(from, to, subject, template);
 };
 
+const sendContactUsEmail = async (name, email, message) => {
+  const from = "Eventnub <admin@eventnub.com>";
+  const to = "therealofoji@gmail.com";
+  const subject = "Contact Us";
+  const template = await ejs.renderFile("src/templates/contactUs.ejs", {
+    name,
+    email,
+    message,
+  });
+
+  await sendEmail(from, to, subject, template);
+};
+
 module.exports = {
   transport,
   sendBoughtTicketEmail,
@@ -100,4 +113,5 @@ module.exports = {
   sendEmailVerificationLink,
   sendPasswordResetLink,
   sendNewEventNotificationEmail,
+  sendContactUsEmail,
 };
