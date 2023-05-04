@@ -9,10 +9,21 @@ const register = (userBody) => {
 };
 
 const login = async (email, password) => {
-  await firebase.auth().signInWithEmailAndPassword(email, password);
-  const idToken = await firebase.auth().currentUser.getIdToken();
-  await firebase.auth().signOut();
-  return { idToken };
+  try {
+    await firebase.auth().signInWithEmailAndPassword(email, password);
+    const idToken = await firebase.auth().currentUser.getIdToken();
+    await firebase.auth().signOut();
+    return { idToken };
+  } catch (error) {
+    if (error.code === "auth/user-not-found") {
+      throw new ApiError(
+        httpStatus.NOT_FOUND,
+        "User with credentials not found"
+      );
+    } else {
+      throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+    }
+  }
 };
 
 const sendPasswordResetEmail = async (email) => {
