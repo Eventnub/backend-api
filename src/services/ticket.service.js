@@ -58,7 +58,7 @@ const getUserAcquiredTicketsByUserId = async (userId, requester) => {
     );
   }
 
-  const events = await getEvents();
+  const events = await getEvents({});
 
   const snapshot = await admin
     .firestore()
