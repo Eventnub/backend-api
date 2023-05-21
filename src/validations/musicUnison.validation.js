@@ -57,6 +57,7 @@ const transcribeAudio = {
 const submitEventMusicUnisonAudio = {
   body: Joi.object().keys({
     musicUnisonId: Joi.string().required(),
+    paymentId: Joi.string().required(),
   }),
   file: Joi.string().required(),
 };

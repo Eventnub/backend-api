@@ -20,15 +20,13 @@ const getPaymentByTransactionReference = async (transactionReference) => {
   return user;
 };
 
-const getPaymentByUserIdAndEventId = async (userId, eventId) => {
-  const snapshot = await admin
+const getPaymentById = async (paymentId) => {
+  const payment = await admin
     .firestore()
     .collection("payments")
-    .where("userId", "==", userId)
-    .where("eventId", "==", eventId)
+    .doc(paymentId)
     .get();
-  const user = snapshot.empty ? null : snapshot.docs.at(0).data();
-  return user;
+  return payment.data();
 };
 
 const onTicketPaymentSuccess = async (userId, paymentBody) => {
@@ -57,7 +55,19 @@ const onTicketPaymentSuccess = async (userId, paymentBody) => {
     );
   }
 
+  paymentBody.extraData = {
+    hasPlayedQuiz: false,
+    hasPlayedMusicUnison: false,
+    hasPlayedRaffleDraw: false,
+  };
+
   if (paymentBody.objective === "purchase") {
+    paymentBody.extraData = {
+      hasPlayedQuiz: true,
+      hasPlayedMusicUnison: true,
+      hasPlayedRaffleDraw: true,
+    };
+
     const acquiredTicket = {
       userId,
       eventId: paymentBody.eventId,
@@ -77,16 +87,19 @@ const onTicketPaymentSuccess = async (userId, paymentBody) => {
     await sendBoughtTicketEmail(emailData);
   }
 
+  const uid = generateFirebaseId("payments");
+
+  paymentBody.uid = uid;
   paymentBody.userId = userId;
   paymentBody.createdAt = Date.now();
-
-  const uid = generateFirebaseId("payments");
 
   await admin
     .firestore()
     .collection("payments")
     .doc(uid)
     .set({ ...paymentBody });
+
+  return paymentBody;
 };
 
 const handlePaystackTicketPayment = async (payer, paymentBody) => {
@@ -110,24 +123,14 @@ const handlePaystackTicketPayment = async (payer, paymentBody) => {
       );
     }
 
-    await onTicketPaymentSuccess(userId, paymentBody);
+    const result = await onTicketPaymentSuccess(userId, paymentBody);
+    return result;
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.message);
   }
 };
 
 const handleStripeTicketPayment = async (payer, paymentBody) => {
-  const payment = await getPaymentByUserIdAndEventId(
-    payer.uid,
-    paymentBody.eventId
-  );
-  if (payment) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      "You've already made payment for this event"
-    );
-  }
-
   const { amount, token } = paymentBody;
   const { uid: userId, email } = payer;
 
@@ -147,24 +150,38 @@ const handleStripeTicketPayment = async (payer, paymentBody) => {
     paymentBody.transactionReference = charge.id;
     delete paymentBody["token"];
 
-    await onTicketPaymentSuccess(userId, paymentBody);
+    const result = await onTicketPaymentSuccess(userId, paymentBody);
+    return result;
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.message);
   }
 };
 
-const getUserPaymentForEvent = async (userId, eventId) => {
-  const payment = await getPaymentByUserIdAndEventId(userId, eventId);
-  if (!payment) {
-    throw new ApiError(httpStatus.NOT_FOUND, "No payment found");
-  }
-  delete payment["transactionReference"];
-  return payment;
+const getUserPaymentsForEvent = async (userId, eventId) => {
+  const snapshot = await admin
+    .firestore()
+    .collection("payments")
+    .where("userId", "==", userId)
+    .where("eventId", "==", eventId)
+    .get();
+  const payments = snapshot.docs.map((doc) => doc.data());
+  return payments;
+};
+
+const updatePaymentExtraData = async (paymentId, extraData) => {
+  const payment = await getPaymentById(paymentId);
+  extraData = { ...payment.extraData, ...extraData };
+  await admin
+    .firestore()
+    .collection("payments")
+    .doc(paymentId)
+    .update({ extraData });
 };
 
 module.exports = {
   handlePaystackTicketPayment,
   handleStripeTicketPayment,
-  getPaymentByUserIdAndEventId,
-  getUserPaymentForEvent,
+  getUserPaymentsForEvent,
+  getPaymentById,
+  updatePaymentExtraData,
 };

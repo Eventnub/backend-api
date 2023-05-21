@@ -23,11 +23,11 @@ router
   );
 
 router
-  .route("/get-user-payment-for-event/:eventId")
+  .route("/get-user-payments-for-event/:eventId")
   .get(
     Authentication,
-    validate(paymentValidation.getUserPaymentForEvent),
-    paymentController.getUserPaymentForEvent
+    validate(paymentValidation.getUserPaymentsForEvent),
+    paymentController.getUserPaymentsForEvent
   );
 
 module.exports = router;

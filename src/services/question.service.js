@@ -3,7 +3,7 @@ const ApiError = require("../utils/ApiError");
 const shuffle = require("../utils/shuffle");
 const { getEventById } = require("./event.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
-const { getPaymentByUserIdAndEventId } = require("./payment.service");
+const { updatePaymentExtraData, getPaymentById } = require("./payment.service");
 
 const createQuestion = async (creator, questionBody) => {
   const event = await getEventById(questionBody.eventId);
@@ -160,31 +160,39 @@ const submitEventQuizAnswersByEventId = async (
   eventId,
   answersBody
 ) => {
-  const payment = await getPaymentByUserIdAndEventId(userId, eventId);
+  const payment = await getPaymentById(answersBody.paymentId);
   if (!payment) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      "You've not made payment for this event quiz"
+      "No payment matched this submission"
     );
   }
 
-  const quizResult = await getQuizResultByUserIdAndEventId(userId, eventId);
-  if (quizResult) {
+  if (payment.userId !== userId) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      "You've already taken this quiz"
+      "Payment was not made by this user"
     );
   }
 
-  const raffleDrawResult = await getRaffleDrawResultByUserIdAndEventId(
-    userId,
-    eventId
-  );
-  if (raffleDrawResult) {
+  if (payment.eventId !== eventId) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      `You've already made a submission for this event raffle draw.
-      Users can only participate in one game for a particular event.`
+      "Payment not made for this event"
+    );
+  }
+
+  if (payment.objective !== "quiz and music match") {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Payment not made for quiz and music unison"
+    );
+  }
+
+  if (payment.extraData.hasPlayedQuiz) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "You've already completed the quiz"
     );
   }
 
@@ -228,9 +236,9 @@ const submitEventQuizAnswersByEventId = async (
   });
 
   const uid = generateFirebaseId("quizResults");
-
   const result = {
     uid,
+    paymentId: answersBody.paymentId,
     userId,
     eventId,
     ticketIndex: payment.ticketIndex,
@@ -243,20 +251,9 @@ const submitEventQuizAnswersByEventId = async (
 
   await admin.firestore().collection("quizResults").doc(uid).set(result);
   delete result["questionAndAnswers"];
+  await updatePaymentExtraData(payment.uid, { hasPlayedQuiz: true });
 
   return result;
-};
-
-// Added here to avoid circular dependency issue
-const getRaffleDrawResultByUserIdAndEventId = async (userId, eventId) => {
-  const snapshot = await admin
-    .firestore()
-    .collection("raffleDrawResults")
-    .where("userId", "==", userId)
-    .where("eventId", "==", eventId)
-    .get();
-  const raffleDrawResult = snapshot.empty ? null : snapshot.docs.at(0).data();
-  return raffleDrawResult;
 };
 
 module.exports = {

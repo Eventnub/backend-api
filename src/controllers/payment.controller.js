@@ -3,25 +3,25 @@ const httpStatus = require("http-status");
 const { paymentService } = require("../services");
 
 const handlePaystackTicketPayment = catchAsync(async (req, res) => {
-  await paymentService.handlePaystackTicketPayment(req.user, req.body);
-  res.status(httpStatus.NO_CONTENT).send();
+  const result = await paymentService.handlePaystackTicketPayment(req.user, req.body);
+  res.send(result);
 });
 
 const handleStripeTicketPayment = catchAsync(async (req, res) => {
-  await paymentService.handleStripeTicketPayment(req.user, req.body);
-  res.status(httpStatus.NO_CONTENT).send();
+  const result = await paymentService.handleStripeTicketPayment(req.user, req.body);
+  res.send(result);
 });
 
-const getUserPaymentForEvent = catchAsync(async (req, res) => {
-  const payment = await paymentService.getUserPaymentForEvent(
+const getUserPaymentsForEvent = catchAsync(async (req, res) => {
+  const payments = await paymentService.getUserPaymentsForEvent(
     req.user.uid,
     req.params.eventId
   );
-  res.send(payment);
+  res.send(payments);
 });
 
 module.exports = {
   handlePaystackTicketPayment,
   handleStripeTicketPayment,
-  getUserPaymentForEvent
+  getUserPaymentsForEvent
 };

@@ -8,6 +8,7 @@ const {
   deepGramTranscribeAudio,
   gCloudTranscribeAudio,
 } = require("./STT.service");
+const { getPaymentById, updatePaymentExtraData } = require("./payment.service");
 
 const createMusicUnison = async (creator, audioFile, musicUnisonBody) => {
   const event = await getEventById(musicUnisonBody.eventId);
@@ -162,10 +163,48 @@ const transcribeAudio = (service, audioFile) => {
 };
 
 const submitEventMusicUnisonAudio = async (
-  musicUnisonId,
+  submitBody,
   audioFile,
   submitter
 ) => {
+  const { musicUnisonId, paymentId } = submitBody;
+
+  const payment = await getPaymentById(paymentId);
+  if (!payment) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "No payment matched this submission"
+    );
+  }
+
+  if (payment.userId !== userId) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Payment was not made by this user"
+    );
+  }
+
+  if (payment.eventId !== eventId) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Payment not made for this event"
+    );
+  }
+
+  if (payment.objective !== "quiz and music match") {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Payment not made for quiz and music unison"
+    );
+  }
+
+  if (payment.extraData.hasPlayedMusicUnison) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "You've already completed the music unison"
+    );
+  }
+
   const musicUnison = await getMusicUnisonById(musicUnisonId, {
     role: "admin",
   });
@@ -179,6 +218,7 @@ const submitEventMusicUnisonAudio = async (
 
   const musicUnisonResult = {
     uid,
+    paymentId,
     musicUnisonId,
     userId: submitter.uid,
     eventId: musicUnison.eventId,
@@ -194,8 +234,9 @@ const submitEventMusicUnisonAudio = async (
     .collection("musicUnisonResults")
     .doc(uid)
     .set(musicUnisonResult);
+  await updatePaymentExtraData(payment.uid, { hasPlayedMusicUnison: true });
 
-  return { ...musicUnisonResult };
+  return musicUnisonResult;
 };
 
 const getMusicUnisonResultsByEventId = async (eventId) => {

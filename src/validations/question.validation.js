@@ -44,6 +44,7 @@ const submitEventQuizAnswers = {
     eventId: Joi.required().custom(documentId),
   }),
   body: Joi.object().keys({
+    paymentId: Joi.string().required(),
     answers: Joi.array()
       .items(
         Joi.object().keys({
@@ -62,5 +63,5 @@ module.exports = {
   updateQuestion,
   deleteQuestion,
   getEventQuiz,
-  submitEventQuizAnswers
+  submitEventQuizAnswers,
 };

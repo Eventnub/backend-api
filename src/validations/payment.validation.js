@@ -27,7 +27,7 @@ const handleStripeTicketPayment = {
   }),
 };
 
-const getUserPaymentForEvent = {
+const getUserPaymentsForEvent = {
   params: Joi.object().keys({
     eventId: Joi.required().custom(documentId),
   }),
@@ -36,5 +36,5 @@ const getUserPaymentForEvent = {
 module.exports = {
   handlePaystackTicketPayment,
   handleStripeTicketPayment,
-  getUserPaymentForEvent,
+  getUserPaymentsForEvent,
 };

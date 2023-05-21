@@ -64,7 +64,7 @@ const transcribeAudio = catchAsync(async (req, res) => {
 
 const submitEventMusicUnisonAudio = catchAsync(async (req, res) => {
   const result = await musicUnisonService.submitEventMusicUnisonAudio(
-    req.body.musicUnisonId,
+    req.body,
     req.file,
     req.user
   );
