@@ -91,4 +91,13 @@ router
     musicUnisonController.reviewUserMusicUnisonSubmission
   );
 
+router
+  .route("/get-event-music-unison-results/:eventId")
+  .get(
+    Authentication,
+    Authorization(["admin"]),
+    validate(musicUnisonValidation.getEventMusicUnisonResults),
+    musicUnisonController.getEventMusicUnisonResults
+  );
+
 module.exports = router;

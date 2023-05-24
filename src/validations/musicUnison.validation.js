@@ -69,6 +69,12 @@ const reviewUserMusicUnisonSubmission = {
   }),
 };
 
+const getEventMusicUnisonResults = {
+  params: Joi.object().keys({
+    eventId: Joi.required().custom(documentId),
+  }),
+};
+
 module.exports = {
   createMusicUnison,
   getMusicUnison,
@@ -79,4 +85,5 @@ module.exports = {
   transcribeAudio,
   submitEventMusicUnisonAudio,
   reviewUserMusicUnisonSubmission,
+  getEventMusicUnisonResults,
 };

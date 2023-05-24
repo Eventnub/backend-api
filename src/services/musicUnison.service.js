@@ -9,6 +9,7 @@ const {
   gCloudTranscribeAudio,
 } = require("./STT.service");
 const { getPaymentById, updatePaymentExtraData } = require("./payment.service");
+const { getUsers } = require("./user.service");
 
 const createMusicUnison = async (creator, audioFile, musicUnisonBody) => {
   const event = await getEventById(musicUnisonBody.eventId);
@@ -342,6 +343,19 @@ const reviewUserMusicUnisonSubmission = async (
   return updateBody;
 };
 
+const getEventMusicUnisonResults = async (eventId) => {
+  const users = await getUsers();
+  let results = await getMusicUnisonResultsByEventId(eventId);
+
+  results = results.map((result) => {
+    const user = users.find((user) => user.uid === result.userId);
+    result.user = user;
+    return result;
+  });
+
+  return results;
+};
+
 module.exports = {
   createMusicUnison,
   getMusicUnisonById,
@@ -354,4 +368,5 @@ module.exports = {
   reviewUserMusicUnisonSubmission,
   getUnreviewedMusicUnisonSubmissions,
   getMusicUnisonResultsByEventId,
+  getEventMusicUnisonResults,
 };
