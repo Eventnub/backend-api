@@ -331,6 +331,19 @@ const getEventRaffleDrawWinnersByEventId = async (eventId, role) => {
   return raffleDrawWinners;
 };
 
+const getEventRaffleDrawResults = async (eventId) => {
+  const users = await getUsers();
+  let results = await getRaffleDrawResultsByEventId(eventId);
+
+  results = results.map((result) => {
+    const user = users.find((user) => user.uid === result.userId);
+    result.user = user;
+    return result;
+  });
+
+  return results;
+};
+
 module.exports = {
   createRaffleDraw,
   getRaffleDrawById,
@@ -339,4 +352,5 @@ module.exports = {
   getEventRaffleDrawByEventId,
   submitEventRaffleDrawChoiceByEventId,
   getEventRaffleDrawWinnersByEventId,
+  getEventRaffleDrawResults,
 };

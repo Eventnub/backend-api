@@ -59,4 +59,13 @@ router
     raffleDrawController.getEventRaffleDrawWinners
   );
 
+router
+  .route("/get-event-raffle-draw-results/:eventId")
+  .get(
+    Authentication,
+    Authorization(["admin"]),
+    validate(raffleDrawValidation.getEventRaffleDrawResults),
+    raffleDrawController.getEventRaffleDrawResults
+  );
+
 module.exports = router;

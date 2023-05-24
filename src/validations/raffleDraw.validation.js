@@ -56,6 +56,12 @@ const getEventRaffleDrawWinners = {
   }),
 };
 
+const getEventRaffleDrawResults = {
+  params: Joi.object().keys({
+    eventId: Joi.required().custom(documentId),
+  }),
+};
+
 module.exports = {
   createRaffleDraw,
   getRaffleDraw,
@@ -64,4 +70,5 @@ module.exports = {
   getEventRaffleDraw,
   submitEventRaffleDrawChoice,
   getEventRaffleDrawWinners,
+  getEventRaffleDrawResults,
 };
