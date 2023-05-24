@@ -50,6 +50,11 @@ const submitEventQuizAnswers = catchAsync(async (req, res) => {
   res.send(result);
 });
 
+const getEventQuizResults = catchAsync(async (req, res) => {
+  const results = await questionService.getEventQuizResults(req.params.eventId);
+  res.send(results);
+});
+
 module.exports = {
   createQuestion,
   getQuestion,
@@ -57,4 +62,5 @@ module.exports = {
   deleteQuestion,
   getEventQuiz,
   submitEventQuizAnswers,
+  getEventQuizResults,
 };

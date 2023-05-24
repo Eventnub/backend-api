@@ -51,4 +51,13 @@ router
     questionController.submitEventQuizAnswers
   );
 
+router
+  .route("/get-event-quiz-results/:eventId")
+  .get(
+    Authentication,
+    Authorization(["admin"]),
+    validate(questionValidation.getEventQuizResults),
+    questionController.getEventQuizResults
+  );
+
 module.exports = router;

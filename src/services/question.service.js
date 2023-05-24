@@ -4,6 +4,7 @@ const shuffle = require("../utils/shuffle");
 const { getEventById } = require("./event.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { updatePaymentExtraData, getPaymentById } = require("./payment.service");
+const { getUsers } = require("./user.service");
 
 const createQuestion = async (creator, questionBody) => {
   const event = await getEventById(questionBody.eventId);
@@ -256,6 +257,19 @@ const submitEventQuizAnswersByEventId = async (
   return result;
 };
 
+const getEventQuizResults = async (eventId) => {
+  const users = await getUsers();
+  let results = await getQuizResultsByEventId(eventId);
+
+  results = results.map((result) => {
+    const user = users.find((user) => user.uid === result.userId);
+    result.user = user;
+    return result;
+  });
+
+  return results;
+};
+
 module.exports = {
   createQuestion,
   getQuestionById,
@@ -264,4 +278,5 @@ module.exports = {
   getEventQuizByEventId,
   submitEventQuizAnswersByEventId,
   getQuizResultsByEventId,
+  getEventQuizResults,
 };
