@@ -353,7 +353,19 @@ const getEventMusicUnisonResults = async (eventId) => {
     return result;
   });
 
-  return results;
+  const totalTakes = results.length;
+  const totalPasses = results.filter(
+    (result) => result.accuracyRatio >= 0.75
+  ).length;
+  const totalFailures = totalTakes - totalPasses;
+
+  const statistics = {
+    totalTakes,
+    totalPasses,
+    totalFailures,
+  };
+
+  return { results, statistics };
 };
 
 module.exports = {
