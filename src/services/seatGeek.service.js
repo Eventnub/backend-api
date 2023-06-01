@@ -19,11 +19,18 @@ const getSeatGeekEvents = async (query) => {
 };
 
 const getSeatGeekEvent = async (eventId) => {
-  let { data } = await axios.get(
-    `${seatGeekBaseUrl}/events/${eventId}?client_id=${seatGeekClientApi}`
-  );
-
-  return data;
+  try {
+    let { data } = await axios.get(
+      `${seatGeekBaseUrl}/events/${eventId}?client_id=${seatGeekClientApi}`
+    );
+    return data;
+  } catch (error) {
+    if (error.code === "ERR_BAD_REQUEST") {
+      throw new ApiError(httpStatus.NOT_FOUND, "Event with ID not found");
+    } else {
+      throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+    }
+  }
 };
 
 module.exports = {
