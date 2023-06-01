@@ -8,6 +8,13 @@ const getSeatGeekEvents = {
   }),
 };
 
+const getSeatGeekEvent = {
+  params: Joi.object().keys({
+    eventId: Joi.number().required(),
+  }),
+};
+
 module.exports = {
   getSeatGeekEvents,
+  getSeatGeekEvent,
 };

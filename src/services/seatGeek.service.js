@@ -18,6 +18,15 @@ const getSeatGeekEvents = async (query) => {
   return data;
 };
 
+const getSeatGeekEvent = async (eventId) => {
+  let { data } = await axios.get(
+    `${seatGeekBaseUrl}/events/${eventId}?client_id=${seatGeekClientApi}`
+  );
+
+  return data;
+};
+
 module.exports = {
   getSeatGeekEvents,
+  getSeatGeekEvent,
 };

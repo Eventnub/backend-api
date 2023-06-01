@@ -8,6 +8,12 @@ const getSeatGeekEvents = catchAsync(async (req, res) => {
   res.send(result);
 });
 
+const getSeatGeekEvent = catchAsync(async (req, res) => {
+  const result = await seatGeekService.getSeatGeekEvent(req.params.eventId);
+  res.send(result);
+});
+
 module.exports = {
   getSeatGeekEvents,
+  getSeatGeekEvent,
 };

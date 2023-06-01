@@ -6,11 +6,16 @@ const seatGeekController = require("../controllers/seatGeek.controller");
 
 const router = express.Router();
 
-router
-  .route("/get-seat-geek-events")
-  .get(
-    validate(seatGeekValidation.getSeatGeekEvents),
-    seatGeekController.getSeatGeekEvents
-  );
+router.get(
+  "/get-events",
+  validate(seatGeekValidation.getSeatGeekEvents),
+  seatGeekController.getSeatGeekEvents
+);
+
+router.get(
+  "/get-event/:eventId",
+  validate(seatGeekValidation.getSeatGeekEvent),
+  seatGeekController.getSeatGeekEvent
+);
 
 module.exports = router;
