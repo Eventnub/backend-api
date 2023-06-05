@@ -13,6 +13,7 @@ const quizAndMusicUnisonRoute = require("./quizAndMusicUnison.route");
 const reviewerRoute = require("./reviewer.route");
 const contactUsRoute = require("./contactUs.route");
 const seatGeekRoute = require("./seatGeek.route");
+const marketingRoute = require("./marketing.route");
 
 const router = express.Router();
 
@@ -72,6 +73,10 @@ const routes = [
   {
     path: "/seat-geek",
     route: seatGeekRoute,
+  },
+  {
+    path: "/marketing",
+    route: marketingRoute,
   },
 ];
 
