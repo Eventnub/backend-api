@@ -1,11 +1,15 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
 const { admin, firebase } = require("./firebase.service");
-const { createUser } = require("./user.service");
+const { createUser, createUserFromProvider } = require("./user.service");
 const emailService = require("./email.service");
 
 const register = (userBody) => {
   return createUser(userBody);
+};
+
+const registerViaProvider = (provider, crdentials) => {
+  return createUserFromProvider(provider, crdentials);
 };
 
 const login = async (email, password) => {
@@ -56,6 +60,7 @@ const resendEmailVerificationLink = async (email) => {
 
 module.exports = {
   register,
+  registerViaProvider,
   login,
   sendPasswordResetEmail,
   resendEmailVerificationLink,

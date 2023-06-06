@@ -1,8 +1,12 @@
 const Joi = require("joi");
-const { createUser } = require("./user.validation");
+const { createUser, createUserFromProvider } = require("./user.validation");
 
 const register = {
   ...createUser,
+};
+
+const registerViaProvider = {
+  ...createUserFromProvider,
 };
 
 const login = {
@@ -32,6 +36,7 @@ const resendEmailVerificationLink = {
 
 module.exports = {
   register,
+  registerViaProvider,
   login,
   sendPasswordResetEmail,
   sendForgotPasswordEmail,

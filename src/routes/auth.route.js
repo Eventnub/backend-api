@@ -11,6 +11,13 @@ router
   .post(validate(authValidation.register), authController.register);
 
 router
+  .route("/register-via-provider")
+  .post(
+    validate(authValidation.registerViaProvider),
+    authController.registerViaProvider
+  );
+
+router
   .route("/login")
   .post(validate(authValidation.login), authController.login);
 

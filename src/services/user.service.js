@@ -36,6 +36,31 @@ const createUser = async (userBody) => {
   }
 };
 
+const createUserFromProvider = async (provider, credentials) => {
+  try {
+    const user = await getUserById(credentials.uid);
+    if (user) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Account already exist");
+    }
+
+    credentials.signUpMethod = provider;
+    credentials.role = "user";
+    credentials.createdAt = Date.now();
+    credentials.disabled = false;
+
+    await admin
+      .firestore()
+      .collection("users")
+      .doc(credentials.uid)
+      .set(credentials);
+    await admin.auth().setCustomUserClaims(credentials.uid, { role: "user" });
+
+    return credentials;
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, error.message);
+  }
+};
+
 const getUsers = async () => {
   try {
     const snapshot = await admin.firestore().collection("users").get();
@@ -171,6 +196,7 @@ const changeUserToHost = async (uid, updateBody) => {
 
 module.exports = {
   createUser,
+  createUserFromProvider,
   getUsers,
   getUserById,
   getUserByEmail,

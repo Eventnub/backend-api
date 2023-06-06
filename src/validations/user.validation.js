@@ -12,6 +12,20 @@ const createUser = {
   }),
 };
 
+const createUserFromProvider = {
+  body: Joi.object().keys({
+    provider: Joi.string().required(),
+    credentials: Joi.object().keys({
+      uid: Joi.string().required(),
+      firstName: Joi.string().required(),
+      lastName: Joi.string().required(),
+      email: Joi.string().required().email(),
+      favoriteCelebrity: Joi.string(),
+      ageRange: Joi.string().required(),
+    }),
+  }),
+};
+
 const getUsers = {
   query: Joi.object().keys({
     role: Joi.string(),
@@ -54,12 +68,13 @@ const saveUserSearchQuery = {
 
 const changeUserToHost = {
   body: Joi.object().keys({
-    phoneNumber: Joi.string().required()
+    phoneNumber: Joi.string().required(),
   }),
 };
 
 module.exports = {
   createUser,
+  createUserFromProvider,
   getUsers,
   getUser,
   updateUser,

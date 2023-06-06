@@ -8,6 +8,14 @@ const register = catchAsync(async (req, res) => {
   res.status(httpStatus.CREATED).send(user);
 });
 
+const registerViaProvider = catchAsync(async (req, res) => {
+  const user = await authService.registerViaProvider(
+    req.body.provider,
+    req.body.credentials
+  );
+  res.status(httpStatus.CREATED).send(user);
+});
+
 const login = catchAsync(async (req, res) => {
   const result = await authService.login(req.body.email, req.body.password);
   res.status(httpStatus.OK).send(result);
@@ -43,6 +51,7 @@ const resendEmailVerificationLink = catchAsync(async (req, res) => {
 
 module.exports = {
   register,
+  registerViaProvider,
   login,
   sendPasswordResetEmail,
   sendForgotPasswordEmail,
