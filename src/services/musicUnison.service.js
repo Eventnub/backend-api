@@ -178,17 +178,10 @@ const submitEventMusicUnisonAudio = async (
     );
   }
 
-  if (payment.userId !== userId) {
+  if (payment.userId !== submitter.uid) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
       "Payment was not made by this user"
-    );
-  }
-
-  if (payment.eventId !== eventId) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      "Payment not made for this event"
     );
   }
 
