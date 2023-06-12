@@ -3,7 +3,7 @@ const questions = [
     id: 1,
     question: "Who was Davido’s piano lesson teacher when he was a kid?",
     options: ["Masterkraft", "Cohbahm Asuquo", "Femi Kuti", "Don Jazzy"],
-    correctAnswer: "Cohbahm Asuquo"
+    correctAnswer: "Masterkraft"
   },
   {
     id: 2,
@@ -22,18 +22,18 @@ const questions = [
     question:
       "What was the first number-one song on the U.S. Afrobeats Songs chart?",
     options: [
-      "On The Low' by Burna Boy",
-      "Calm Down' by Rema ft. Selena Gomez",
-      "Love Nwantiti (Ah Ah Ah)' by CKay",
-      "Essense' by Wizkid ft. Tems",
+      "'On The Low' by Burna Boy",
+      "'Calm Down' by Rema ft. Selena Gomez",
+      "'Love Nwantiti (Ah Ah Ah)' by CKay",
+      "'Essense' by Wizkid ft. Tems",
     ],
-    correctAnswer: "On The Low' by Burna Boy"
+    correctAnswer: "'Love Nwantiti (Ah Ah Ah)' by CKay"
   },
   {
     id: 5,
     question: "Who Is The Most Nominated Nigerian Artist At The Grammy Awards?",
     options: ["Wizkid", "Burna Boy", "Femi Kuti", "Davido"],
-    correctAnswer: "Wizkid"
+    correctAnswer: "Femi Kuti"
   },
 ];
 
