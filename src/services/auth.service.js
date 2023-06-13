@@ -34,7 +34,7 @@ const sendPasswordResetEmail = async (email) => {
   try {
     await admin.auth().getUserByEmail(email);
     const resetLink = await admin.auth().generatePasswordResetLink(email, {
-      url: "https://eventnub.netlify.app/auth/login",
+      url: "https://globeventnub.com/auth/login",
       handleCodeInApp: true,
     });
     await emailService.sendPasswordResetLink(email, resetLink);
@@ -49,7 +49,7 @@ const resendEmailVerificationLink = async (email) => {
     const verificationLink = await admin
       .auth()
       .generateEmailVerificationLink(email, {
-        url: "https://eventnub.netlify.app/auth/login",
+        url: "https://globeventnub.com/auth/login",
         handleCodeInApp: true,
       });
     await emailService.sendEmailVerificationLink(email, verificationLink);
