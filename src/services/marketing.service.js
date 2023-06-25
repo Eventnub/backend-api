@@ -26,7 +26,7 @@ const submitQuizAnswers = async (answersBody) => {
     }
   });
 
-  const uid = generateFirebaseId("marketingQuizResults");
+  const uid = generateFirebaseId("leadsQuizResults");
   const result = {
     firstName: answersBody.firstName,
     lastName: answersBody.lastName,
@@ -41,7 +41,7 @@ const submitQuizAnswers = async (answersBody) => {
 
   await admin
     .firestore()
-    .collection("marketingQuizResults")
+    .collection("leadsQuizResults")
     .doc(uid)
     .set(result);
   delete result["questionAndAnswers"];
@@ -49,6 +49,20 @@ const submitQuizAnswers = async (answersBody) => {
   return result;
 };
 
+const submitEmail = async (submitBody) => {
+  const leadsEmailSubmission = await admin
+    .firestore()
+    .collection("leadsEmailSubmissions")
+    .where("email", "==", submitBody.email)
+    .get();
+
+  if (leadsEmailSubmission.empty) {
+    submitBody.createdAt = Date.now();
+    await admin.firestore().collection("leadsEmailSubmissions").add(submitBody);
+  }
+};
+
 module.exports = {
   submitQuizAnswers,
+  submitEmail,
 };

@@ -12,4 +12,11 @@ router
     marketingController.submitQuizAnswers
   );
 
+router
+  .route("/submit-email")
+  .post(
+    validate(marketingValidation.submitEmail),
+    marketingController.submitEmail
+  );
+
 module.exports = router;

@@ -19,6 +19,13 @@ const submitQuizAnswers = {
   }),
 };
 
+const submitEmail = {
+  body: Joi.object().keys({
+    email: Joi.string().required(),
+  }),
+};
+
 module.exports = {
   submitQuizAnswers,
+  submitEmail,
 };
