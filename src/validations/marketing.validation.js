@@ -1,5 +1,4 @@
 const Joi = require("joi");
-const { password, documentId } = require("./custom.validation");
 
 const submitQuizAnswers = {
   body: Joi.object().keys({
@@ -21,6 +20,7 @@ const submitQuizAnswers = {
 
 const submitEmail = {
   body: Joi.object().keys({
+    firstName: Joi.string().required(),
     email: Joi.string().required(),
   }),
 };
