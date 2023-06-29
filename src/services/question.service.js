@@ -148,8 +148,8 @@ const getEventQuizByEventId = async (eventId, role) => {
 
   if (!["admin"].includes(role)) {
     questions = shuffle(questions);
-    if (questions.length > 3) {
-      questions = questions.slice(0, 3);
+    if (questions.length > 5) {
+      questions = questions.slice(0, 5);
     }
   }
 
