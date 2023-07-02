@@ -260,8 +260,35 @@ const getMusicUnisonResultById = async (uid) => {
   }
 };
 
+const getReviewedMusicUnisonSubmissions = async () => {
+  let snapshot = await admin
+    .firestore()
+    .collection("musicUnisonResults")
+    .where("isReviewed", "==", true)
+    .get();
+  let musicUnisonSubmissions = snapshot.docs.map((doc) => doc.data());
+
+  snapshot = await admin.firestore().collection("musicUnisons").get();
+  const musicUnisons = snapshot.docs.map((doc) => doc.data());
+
+  musicUnisonSubmissions = musicUnisonSubmissions.map((submission) => {
+    const [submissionMusicUnison] = musicUnisons.filter(
+      (musicUnison) => musicUnison.uid === submission.musicUnisonId
+    );
+    submission.musicUnison = submissionMusicUnison;
+    delete submission["musicUnisonId"];
+    return submission;
+  });
+
+  return musicUnisonSubmissions;
+};
+
 const getUnreviewedMusicUnisonSubmissions = async () => {
-  let snapshot = await admin.firestore().collection("musicUnisonResults").get();
+  let snapshot = await admin
+    .firestore()
+    .collection("musicUnisonResults")
+    .where("isReviewed", "==", false)
+    .get();
   let musicUnisonSubmissions = snapshot.docs.map((doc) => doc.data());
 
   snapshot = await admin.firestore().collection("musicUnisons").get();
@@ -371,6 +398,7 @@ module.exports = {
   transcribeAudio,
   submitEventMusicUnisonAudio,
   reviewUserMusicUnisonSubmission,
+  getReviewedMusicUnisonSubmissions,
   getUnreviewedMusicUnisonSubmissions,
   getMusicUnisonResultsByEventId,
   getEventMusicUnisonResults,

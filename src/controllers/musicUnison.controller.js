@@ -71,6 +71,11 @@ const submitEventMusicUnisonAudio = catchAsync(async (req, res) => {
   res.send(result);
 });
 
+const getReviewedMusicUnisonSubmissions = catchAsync(async (req, res) => {
+  const result = await musicUnisonService.getReviewedMusicUnisonSubmissions();
+  res.send(result);
+});
+
 const getUnreviewedMusicUnisonSubmissions = catchAsync(async (req, res) => {
   const result = await musicUnisonService.getUnreviewedMusicUnisonSubmissions();
   res.send(result);
@@ -101,6 +106,7 @@ module.exports = {
   getEventMusicUnison,
   transcribeAudio,
   submitEventMusicUnisonAudio,
+  getReviewedMusicUnisonSubmissions,
   getUnreviewedMusicUnisonSubmissions,
   reviewUserMusicUnisonSubmission,
   getEventMusicUnisonResults,

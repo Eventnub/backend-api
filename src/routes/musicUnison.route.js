@@ -75,6 +75,14 @@ router
   );
 
 router
+  .route("/get-reviewed-music-unison-submissions/all")
+  .get(
+    Authentication,
+    Authorization(["admin"]),
+    musicUnisonController.getReviewedMusicUnisonSubmissions
+  );
+
+router
   .route("/get-unreviewed-music-unison-submissions/all")
   .get(
     Authentication,
