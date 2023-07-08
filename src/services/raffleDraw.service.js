@@ -275,14 +275,11 @@ const getEventRaffleDrawWinnersByEventId = async (eventId, role) => {
       );
     }
 
-    const sortedRaffleDrawResults = raffleDrawResults.sort((a, b) => {
-      if (a.numberOfCorrectMatches < b.numberOfCorrectMatches) return 1;
-      if (a.numberOfCorrectMatches > b.numberOfCorrectMatches) return -1;
-    });
+    const winningRaffleDrawResults = raffleDrawResults.filter(
+      (result) => result.numberOfCorrectMatches === 5
+    );
 
-    const slicedRaffleDrawResults = sortedRaffleDrawResults.slice(0, 5);
-
-    const winners = slicedRaffleDrawResults.map((result) => ({
+    const winners = winningRaffleDrawResults.map((result) => ({
       userId: result.userId,
       resultId: result.uid,
     }));
