@@ -303,7 +303,7 @@ const getEventRaffleDrawWinnersByEventId = async (eventId, role) => {
         eventName: event.name,
         eventDate: event.date,
         playedGame: "raffle draw",
-        ticketUrl: `https://eventnub.netlify.app/dashboard/tickets`,
+        ticketUrl: `https://globeventnub.com/dashboard/tickets`,
       };
 
       return { acquiredTicket, emailData };

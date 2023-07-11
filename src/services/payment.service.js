@@ -82,7 +82,7 @@ const onTicketPaymentSuccess = async (userId, paymentBody) => {
       userEmail: user.email,
       eventName: event.name,
       eventDate: event.date,
-      ticketUrl: `https://eventnub.netlify.app/dashboard/tickets`,
+      ticketUrl: `https://globeventnub.com/dashboard/tickets`,
     };
     await sendBoughtTicketEmail(emailData);
   }

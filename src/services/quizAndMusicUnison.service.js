@@ -115,7 +115,7 @@ const getEventQuizAndMusicUnisonWinners = async (eventId, role) => {
         eventName: event.name,
         eventDate: event.date,
         playedGame: "Quiz and Music Unison",
-        ticketUrl: `https://eventnub.netlify.app/dashboard/tickets`,
+        ticketUrl: `https://globeventnub.com/dashboard/tickets`,
       };
 
       return { acquiredTicket, emailData };
