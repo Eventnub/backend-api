@@ -34,12 +34,12 @@ const getEventQuizAndMusicUnisonWinners = async (eventId, role) => {
 
   if (!quizAndMusicUnisonWinners) {
     const event = await getEventById(eventId);
-    // if (event && event.gameEndTimestamp > Date.now()) {
-    //   throw new ApiError(
-    //     httpStatus.BAD_REQUEST,
-    //     "Submission of quiz answers and music match audio has not ended yet"
-    //   );
-    // }
+    if (event && event.gameEndTimestamp > Date.now()) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "Submission of quiz answers and music match audio has not ended yet"
+      );
+    }
 
     const quizResults = await getQuizResultsByEventId(eventId);
     const musicUnisonResults = await getMusicUnisonResultsByEventId(eventId);
@@ -58,74 +58,56 @@ const getEventQuizAndMusicUnisonWinners = async (eventId, role) => {
       );
     }
 
-    const quizAndMusicUnisonResults = quizResults.map((quizResult) => {
+    const winningQuizResults = quizResults.filter(
+      (result) => result.numberOfPasses === result.numberOfQuestions
+    );
+
+    const winners = [];
+
+    for (let i = 0; i < winningQuizResults.length; i++) {
+      const currentQuizResult = winningQuizResults[i];
       const [musicUnisonResult] = musicUnisonResults.filter(
         (musicUnisonResult) =>
-          quizResult.userId === musicUnisonResult.userId &&
-          quizResult.eventId === musicUnisonResult.eventId
+          currentQuizResult.userId === musicUnisonResult.userId &&
+          currentQuizResult.eventId === musicUnisonResult.eventId &&
+          currentQuizResult.paymentId === musicUnisonResult.paymentId
       );
 
-      if (!musicUnisonResult) {
-        const totalScore = parseFloat(
-          (
-            (quizResult.numberOfPasses / quizResult.numberOfQuestions) *
-            100
-          ).toFixed(6)
-        );
-
-        return {
-          userId: quizResult.userId,
-          eventId: quizResult.eventId,
-          quizResultId: quizResult.uid,
-          musicUnisonResultId: "",
-          totalScore,
-        };
-      }
-
-      if (!musicUnisonResult.isReviewed) {
+      if (musicUnisonResult && !musicUnisonResult.isReviewed) {
         throw new ApiError(
           httpStatus.BAD_REQUEST,
-          "There is an unreviewed music unsion submission"
+          "There is an unreviewed music unison submission"
         );
       }
 
-      const totalScore = parseFloat(
-        (
-          (quizResult.numberOfPasses / quizResult.numberOfQuestions +
-            musicUnisonResult.accuracyRation) *
-          100
-        ).toFixed(6)
-      );
-
-      return {
-        userId: quizResult.userId || musicUnisonResult.userId,
-        eventId: quizResult.eventId || musicUnisonResult.eventId,
-        quizResultId: quizResult.uid,
-        musicUnisonResultId: musicUnisonResult.uid,
-        totalScore,
-      };
-    });
-
-    const sortedQuizAndMusicUnisonResultsizResults =
-      quizAndMusicUnisonResults.sort((a, b) => {
-        if (a.totalScore < b.totalScore) return 1;
-        if (a.totalScore > b.totalScore) return -1;
-      });
-
-    const winners = sortedQuizAndMusicUnisonResultsizResults.slice(0, 5);
+      if (musicUnisonResult && +musicUnisonResult.accuracyRatio > 0.8) {
+        winners.push({
+          userId: currentQuizResult.userId || musicUnisonResult.userId,
+          eventId: currentQuizResult.eventId || musicUnisonResult.eventId,
+          quizRecord: {
+            uid: currentQuizResult.uid,
+            numberOfPasses: currentQuizResult.numberOfPasses,
+          },
+          musicUnisonRecord: {
+            uid: musicUnisonResult.uid,
+            accuracyRatio: musicUnisonResult.accuracyRatio,
+          },
+        });
+      }
+    }
 
     const users = await getUsers();
     const rewardData = winners.map((winner) => {
       const [user] = users.filter((user) => user.uid === winner.userId);
       const [result] = quizResults.filter(
-        (result) => result.uid === winner.quizResultId
+        (result) => result.uid === winner.quizRecord.uid
       );
       const acquiredTicket = {
         userId: user.uid,
         eventId: event.uid,
         ticketIndex: result.ticketIndex,
         acquisitionMethod: "Won",
-        playedGame: "quiz",
+        playedGame: "quiz and music unison",
       };
       const emailData = {
         userName: user.firstName,
