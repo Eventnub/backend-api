@@ -293,7 +293,7 @@ const getEventRaffleDrawWinnersByEventId = async (eventId, role) => {
     const rewardData = winners.map((winner) => {
       const [user] = users.filter((user) => user.uid === winner.userId);
       const [result] = raffleDrawResults.filter(
-        (result) => result.uid === winner.resultId
+        (result) => result.uid === winner.raffleDrawRecord.uid
       );
       const acquiredTicket = {
         userId: user.uid,
