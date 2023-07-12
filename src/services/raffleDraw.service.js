@@ -282,6 +282,7 @@ const getEventRaffleDrawWinnersByEventId = async (eventId, role) => {
     const winners = winningRaffleDrawResults.map((result) => ({
       userId: result.userId,
       resultId: result.uid,
+      medium: "raffle draw",
     }));
 
     const users = await getUsers();

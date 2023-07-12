@@ -92,6 +92,7 @@ const getEventQuizAndMusicUnisonWinners = async (eventId, role) => {
             uid: musicUnisonResult.uid,
             accuracyRatio: musicUnisonResult.accuracyRatio,
           },
+          medium: "quiz and music match",
         });
       }
     }
