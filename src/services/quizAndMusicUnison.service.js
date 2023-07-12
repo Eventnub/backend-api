@@ -4,7 +4,7 @@ const { sendWonTicketEmail } = require("./email.service");
 const { getEventById } = require("./event.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { saveAcquiredTicket } = require("./ticket.service");
-const { getUsers } = require("./user.service");
+const { getUsers, getUserById } = require("./user.service");
 const { getQuizResultsByEventId } = require("./question.service");
 const { getMusicUnisonResultsByEventId } = require("./musicUnison.service");
 
@@ -92,6 +92,7 @@ const getEventQuizAndMusicUnisonWinners = async (eventId, role) => {
             uid: musicUnisonResult.uid,
             accuracyRatio: musicUnisonResult.accuracyRatio,
           },
+          wonTicketIndex: currentQuizResult.ticketIndex,
           medium: "quiz and music match",
         });
       }
@@ -137,6 +138,16 @@ const getEventQuizAndMusicUnisonWinners = async (eventId, role) => {
       .doc(uid)
       .set(quizAndMusicUnisonWinners);
   }
+
+  const users = await getUsers();
+  const event = await getEventById(eventId);
+  quizAndMusicUnisonWinners.winners = quizAndMusicUnisonWinners.winners.map(
+    (winner) => {
+      winner.user = users.find((user) => user.uid === winner.userId);
+      winner.ticketWon = event.tickets[winner.wonTicketIndex] || 0;
+      return winner;
+    }
+  );
 
   return quizAndMusicUnisonWinners;
 };

@@ -281,7 +281,11 @@ const getEventRaffleDrawWinnersByEventId = async (eventId, role) => {
 
     const winners = winningRaffleDrawResults.map((result) => ({
       userId: result.userId,
-      resultId: result.uid,
+      raffleDrawRecord: {
+        uid: result.uid,
+        numberOfCorrectMatches: result.numberOfCorrectMatches,
+      },
+      wonTicketIndex: result.ticketIndex,
       medium: "raffle draw",
     }));
 
@@ -325,6 +329,14 @@ const getEventRaffleDrawWinnersByEventId = async (eventId, role) => {
       .doc(uid)
       .set(raffleDrawWinners);
   }
+
+  const users = await getUsers();
+  const event = await getEventById(eventId);
+  raffleDrawWinners.winners = raffleDrawWinners.winners.map((winner) => {
+    winner.user = users.find((user) => user.uid === winner.userId);
+    winner.ticketWon = event.tickets[winner.wonTicketIndex] || 0;
+    return winner;
+  });
 
   return raffleDrawWinners;
 };
