@@ -50,6 +50,22 @@ const sendBoughtTicketEmail = async (data) => {
   await sendEmail(from, to, subject, template);
 };
 
+const sendGameResultEmail = async (data) => {
+  const from = "Globeventnub <admin@eventnub.com>";
+  const to = data.userEmail;
+  const subject = "Game Result";
+  const template = await ejs.renderFile("src/templates/gameResult.ejs", {
+    userName: data.userName,
+    eventName: data.eventName,
+    eventDate: data.eventDate,
+    ticketType: data.ticketType,
+    game: data.game,
+    result: data.result,
+  });
+
+  await sendEmail(from, to, subject, template);
+};
+
 const sendWonTicketEmail = async (data) => {
   const from = "Globeventnub <admin@eventnub.com>";
   const to = data.userEmail;
@@ -108,6 +124,7 @@ const sendContactUsEmail = async (name, email, message) => {
 module.exports = {
   transport,
   sendBoughtTicketEmail,
+  sendGameResultEmail,
   sendWonTicketEmail,
   sendReviewerVerificationCode,
   sendEmailVerificationLink,

@@ -10,6 +10,8 @@ const {
 } = require("./STT.service");
 const { getPaymentById, updatePaymentExtraData } = require("./payment.service");
 const { getUsers } = require("./user.service");
+const { getEventQuizResults } = require("./question.service");
+const { sendGameResultEmail } = require("./email.service");
 
 const createMusicUnison = async (creator, audioFile, musicUnisonBody) => {
   const event = await getEventById(musicUnisonBody.eventId);
@@ -360,6 +362,32 @@ const reviewUserMusicUnisonSubmission = async (
     .doc(musicUnisonSubmissionId)
     .update(updateBody);
 
+  const event = await getEventById(musicUnison.eventId);
+  const quizResults = await getEventQuizResults(musicUnison.eventId);
+  const userQuizResult = quizResults.results.find(
+    (result) => result.user.uid === musicUnisonSubmission.userId
+  );
+
+  const emailData = {
+    userName: userQuizResult.user.firstName,
+    userEmail: userQuizResult.user.email,
+    eventName: event.name,
+    eventDate: event.date,
+    ticketType: event.tickets[userQuizResult.ticketIndex].type || "Null",
+    game: "Quiz and Music Match",
+    result: [
+      {
+        title: "Quiz score:",
+        score: `${userQuizResult.numberOfPasses}/${userQuizResult.numberOfQuestions}`,
+      },
+      {
+        title: "Music Match Accuracy:",
+        score: `${(accuracyRatio * 100).toFixed(2)}%`,
+      },
+    ],
+  };
+
+  await sendGameResultEmail(emailData);
   return updateBody;
 };
 
