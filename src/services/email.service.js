@@ -15,7 +15,7 @@ const sendEmail = async (from, to, subject, html) => {
 };
 
 const sendEmailVerificationLink = async (userEmail, verificationLink) => {
-  const from = "Globeventnub <admin@globeventnub.com>";
+  const from = "Globeventnub <admin@eventnub.com>";
   const to = userEmail;
   const subject = "Email Verification";
   const template = await ejs.renderFile("src/templates/emailVerification.ejs", {
@@ -26,7 +26,7 @@ const sendEmailVerificationLink = async (userEmail, verificationLink) => {
 };
 
 const sendPasswordResetLink = async (userEmail, resetLink) => {
-  const from = "Globeventnub <admin@globeventnub.com>";
+  const from = "Globeventnub <admin@eventnub.com>";
   const to = userEmail;
   const subject = "Password Reset";
   const template = await ejs.renderFile("src/templates/passwordReset.ejs", {
@@ -37,7 +37,7 @@ const sendPasswordResetLink = async (userEmail, resetLink) => {
 };
 
 const sendBoughtTicketEmail = async (data) => {
-  const from = "Globeventnub <admin@globeventnub.com>";
+  const from = "Globeventnub <admin@eventnub.com>";
   const to = data.userEmail;
   const subject = "Ticket Purchase";
   const template = await ejs.renderFile("src/templates/boughtTicketEmail.ejs", {
@@ -51,7 +51,7 @@ const sendBoughtTicketEmail = async (data) => {
 };
 
 const sendWonTicketEmail = async (data) => {
-  const from = "Globeventnub <admin@globeventnub.com>";
+  const from = "Globeventnub <admin@eventnub.com>";
   const to = data.userEmail;
   const subject = "Ticket Won";
   const template = await ejs.renderFile("src/templates/wonTicketEmail.ejs", {
@@ -66,7 +66,7 @@ const sendWonTicketEmail = async (data) => {
 };
 
 const sendReviewerVerificationCode = async (data) => {
-  const from = "Globeventnub <admin@globeventnub.com>";
+  const from = "Globeventnub <admin@eventnub.com>";
   const to = data.userEmail;
   const subject = "Reviewer Email Verification";
   const template = await ejs.renderFile(
@@ -81,7 +81,7 @@ const sendReviewerVerificationCode = async (data) => {
 };
 
 const sendNewEventNotificationEmail = async (creatorEmail, eventId) => {
-  const from = "Globeventnub <admin@globeventnub.com>";
+  const from = "Globeventnub <admin@eventnub.com>";
   const to = "therealofoji@gmail.com";
   const subject = "New Event";
   const template = await ejs.renderFile("src/templates/newEvent.ejs", {
@@ -93,7 +93,7 @@ const sendNewEventNotificationEmail = async (creatorEmail, eventId) => {
 };
 
 const sendContactUsEmail = async (name, email, message) => {
-  const from = "Globeventnub <admin@globeventnub.com>";
+  const from = "Globeventnub <admin@eventnub.com>";
   const to = "therealofoji@gmail.com";
   const subject = "Contact Us";
   const template = await ejs.renderFile("src/templates/contactUs.ejs", {
