@@ -110,7 +110,7 @@ const sendNewEventNotificationEmail = async (creatorEmail, eventId) => {
 
 const sendContactUsEmail = async (name, email, message) => {
   const from = "Globeventnub <admin@eventnub.com>";
-  const to = "therealofoji@gmail.com";
+  const to = "globeventnub@gmail.com";
   const subject = "Contact Us";
   const template = await ejs.renderFile("src/templates/contactUs.ejs", {
     name,
