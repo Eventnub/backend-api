@@ -11,5 +11,6 @@ module.exports.musicUnisonService = require("./musicUnison.service");
 module.exports.quizAndMusicUnisonService = require("./quizAndMusicUnison.service");
 module.exports.reviewerService = require("./reviewer.service");
 module.exports.contactUsService = require("./contactUs.service");
+module.exports.statisticsService = require("./statistics.service");
 module.exports.seatGeekService = require("./seatGeek.service");
 module.exports.marketingService = require("./marketing.service");

@@ -12,6 +12,7 @@ const musicUnisonRoute = require("./musicUnison.route");
 const quizAndMusicUnisonRoute = require("./quizAndMusicUnison.route");
 const reviewerRoute = require("./reviewer.route");
 const contactUsRoute = require("./contactUs.route");
+const statisticsRoute = require("./statistics.route");
 const seatGeekRoute = require("./seatGeek.route");
 const marketingRoute = require("./marketing.route");
 
@@ -69,6 +70,10 @@ const routes = [
   {
     path: "/contact-us",
     route: contactUsRoute,
+  },
+  {
+    path: "/statistics",
+    route: statisticsRoute,
   },
   {
     path: "/seat-geek",
