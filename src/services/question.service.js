@@ -4,7 +4,8 @@ const shuffle = require("../utils/shuffle");
 const { getEventById } = require("./event.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { updatePaymentExtraData, getPaymentById } = require("./payment.service");
-const { getUsers } = require("./user.service");
+const { getUsers, getUserById } = require("./user.service");
+const { sendGameResultEmail } = require("./email.service");
 
 const createQuestion = async (creator, questionBody) => {
   const event = await getEventById(questionBody.eventId);
@@ -255,7 +256,31 @@ const submitEventQuizAnswersByEventId = async (
 
   await admin.firestore().collection("quizResults").doc(uid).set(result);
   delete result["questionAndAnswers"];
-  await updatePaymentExtraData(payment.uid, { hasPlayedQuiz: true });
+  await updatePaymentExtraData(payment.uid, {
+    hasPlayedQuiz: true,
+    isIOSDevice: answersBody.isIOSDevice,
+  });
+
+  if (answersBody.isIOSDevice) {
+    const user = await getUserById(userId);
+
+    const emailData = {
+      userName: user.firstName,
+      userEmail: user.email,
+      eventName: event.name,
+      eventDate: event.date,
+      ticketType: event.tickets[payment.ticketIndex].type || "Null",
+      game: "Quiz",
+      result: [
+        {
+          title: "Quiz score:",
+          score: `${numberOfPasses}/${numberOfQuestions}`,
+        },
+      ],
+    };
+
+    await sendGameResultEmail(emailData);
+  }
 
   return result;
 };
