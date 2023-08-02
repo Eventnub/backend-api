@@ -208,7 +208,11 @@ const submitEventQuizAnswersByEventId = async (
     );
   }
 
-  const eventQuiz = await getEventQuizByEventId(eventId, "admin");
+  const eventQuiz = await getEventQuizByEventId(
+    eventId,
+    answersBody.isIOSDevice,
+    "admin"
+  );
 
   if (!(eventQuiz.length > 0)) {
     throw new ApiError(
@@ -274,7 +278,7 @@ const submitEventQuizAnswersByEventId = async (
       result: [
         {
           title: "Quiz score:",
-          score: `${numberOfPasses}/${numberOfQuestions}`,
+          score: `${numberOfPasses}/${questionAndAnswers.length}`,
         },
       ],
     };
