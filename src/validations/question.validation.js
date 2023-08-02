@@ -48,6 +48,7 @@ const submitEventQuizAnswers = {
   }),
   body: Joi.object().keys({
     paymentId: Joi.string().required(),
+    isIOSDevice: Joi.boolean().required(),
     answers: Joi.array()
       .items(
         Joi.object().keys({

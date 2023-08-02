@@ -242,6 +242,7 @@ const submitEventQuizAnswersByEventId = async (
   const result = {
     uid,
     paymentId: answersBody.paymentId,
+    isIOSDevice: answersBody.isIOSDevice,
     userId,
     eventId,
     ticketIndex: payment.ticketIndex,
@@ -271,7 +272,7 @@ const getEventQuizResults = async (eventId) => {
 
   const totalTakes = results.length;
   const totalPasses = results.filter(
-    (result) => result.numberOfPasses >= result.numberOfQuestions / 2
+    (result) => result.numberOfPasses === result.numberOfQuestions
   ).length;
   const totalFailures = totalTakes - totalPasses;
 
