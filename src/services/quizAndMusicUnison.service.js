@@ -51,13 +51,6 @@ const getEventQuizAndMusicUnisonWinners = async (eventId, role) => {
       );
     }
 
-    if (musicUnisonResults.length === 0) {
-      throw new ApiError(
-        httpStatus.NOT_FOUND,
-        "There are no results for this event's music unsion"
-      );
-    }
-
     const winningQuizResults = quizResults.filter(
       (result) => result.numberOfPasses === result.numberOfQuestions
     );
@@ -80,17 +73,21 @@ const getEventQuizAndMusicUnisonWinners = async (eventId, role) => {
         );
       }
 
-      if (musicUnisonResult && +musicUnisonResult.accuracyRatio > 0.8) {
+      if (
+        (musicUnisonResult && +musicUnisonResult.accuracyRatio > 0.8) ||
+        currentQuizResult.isIOSDevice
+      ) {
         winners.push({
           userId: currentQuizResult.userId || musicUnisonResult.userId,
           eventId: currentQuizResult.eventId || musicUnisonResult.eventId,
+          isIOSDevice: currentQuizResult.isIOSDevice,
           quizRecord: {
             uid: currentQuizResult.uid,
             numberOfPasses: currentQuizResult.numberOfPasses,
           },
           musicUnisonRecord: {
-            uid: musicUnisonResult.uid,
-            accuracyRatio: musicUnisonResult.accuracyRatio,
+            uid: musicUnisonResult.uid || "NA",
+            accuracyRatio: musicUnisonResult.accuracyRatio || "NA",
           },
           wonTicketIndex: currentQuizResult.ticketIndex,
           medium: "quiz and music match",
