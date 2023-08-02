@@ -36,6 +36,7 @@ const deleteQuestion = catchAsync(async (req, res) => {
 const getEventQuiz = catchAsync(async (req, res) => {
   const questions = await questionService.getEventQuizByEventId(
     req.params.eventId,
+    req.query.isIOSDevice,
     req.user.role
   );
   res.send(questions);

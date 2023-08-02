@@ -132,7 +132,7 @@ const getQuizResultsByEventId = async (eventId) => {
   return quizResults;
 };
 
-const getEventQuizByEventId = async (eventId, role) => {
+const getEventQuizByEventId = async (eventId, isIOSDevice, role) => {
   const snapshot = await admin
     .firestore()
     .collection("questions")
@@ -146,10 +146,12 @@ const getEventQuizByEventId = async (eventId, role) => {
     return question;
   });
 
+  const questionsCount = isIOSDevice ? 10 : 5;
+
   if (!["admin"].includes(role)) {
     questions = shuffle(questions);
-    if (questions.length > 5) {
-      questions = questions.slice(0, 5);
+    if (questions.length > questionsCount) {
+      questions = questions.slice(0, questionsCount);
     }
   }
 

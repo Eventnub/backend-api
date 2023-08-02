@@ -34,6 +34,9 @@ const deleteQuestion = {
 };
 
 const getEventQuiz = {
+  query: Joi.object().keys({
+    isIOSDevice: Joi.boolean().default(false).required(),
+  }),
   params: Joi.object().keys({
     eventId: Joi.required().custom(documentId),
   }),
