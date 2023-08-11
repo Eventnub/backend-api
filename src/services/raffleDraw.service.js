@@ -2,12 +2,12 @@ const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
 const shuffle = require("../utils/shuffle");
 const { genNValuesInRange } = require("../utils/generator");
-const { sendWonTicketEmail } = require("./email.service");
+const { sendWonTicketEmail, sendGameResultEmail } = require("./email.service");
 const { getEventById } = require("./event.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { getPaymentById, updatePaymentExtraData } = require("./payment.service");
 const { saveAcquiredTicket } = require("./ticket.service");
-const { getUsers } = require("./user.service");
+const { getUsers, getUserById } = require("./user.service");
 
 const createRaffleDraw = async (creator, raffleDrawBody) => {
   const event = await getEventById(raffleDrawBody.eventId);
@@ -198,6 +198,14 @@ const submitEventRaffleDrawChoiceByEventId = async (
     );
   }
 
+  const event = await getEventById(eventId);
+  if (event && Date.now() > event.gameEndTimestamp) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Submission of raffle draw choice numbers has ended"
+    );
+  }
+
   const correctMatches = [];
 
   choiceBody.chosenNumbers.forEach((number) => {
@@ -223,6 +231,25 @@ const submitEventRaffleDrawChoiceByEventId = async (
   await admin.firestore().collection("raffleDrawResults").doc(uid).set(result);
   delete result["correctMatches"];
   await updatePaymentExtraData(payment.uid, { hasPlayedRaffleDraw: true });
+
+  const user = await getUserById(userId);
+
+  const emailData = {
+    userName: user.firstName,
+    userEmail: user.email,
+    eventName: event.name,
+    eventDate: event.date,
+    ticketType: event.tickets[payment.ticketIndex].type || "Null",
+    game: "Raffle Draw",
+    result: [
+      {
+        title: "Raffle Draw:",
+        score: `${correctMatches.length}/${eventRaffleDraw.chosenNumbers.length}`,
+      },
+    ],
+  };
+
+  await sendGameResultEmail(emailData);
 
   return result;
 };
