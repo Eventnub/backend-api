@@ -240,7 +240,7 @@ const submitEventRaffleDrawChoiceByEventId = async (
 
   await sendGameResultEmail(emailData);
 
-  if (eventRaffleDraw.chosenNumbers.length === result.numberOfCorrectMatches) {
+  if (result.correctMatches.length === eventRaffleDraw.chosenNumbers.length) {
     await processWinningResult(userId, eventId, result);
   }
 
