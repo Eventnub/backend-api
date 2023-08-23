@@ -137,17 +137,6 @@ const getEventRaffleDrawByEventId = async (eventId, role) => {
   return eventRaffleDraw;
 };
 
-const getRaffleDrawResultByUserIdAndEventId = async (userId, eventId) => {
-  const snapshot = await admin
-    .firestore()
-    .collection("raffleDrawResults")
-    .where("userId", "==", userId)
-    .where("eventId", "==", eventId)
-    .get();
-  const raffleDrawResult = snapshot.empty ? null : snapshot.docs.at(0).data();
-  return raffleDrawResult;
-};
-
 const submitEventRaffleDrawChoiceByEventId = async (
   userId,
   eventId,
@@ -251,6 +240,10 @@ const submitEventRaffleDrawChoiceByEventId = async (
 
   await sendGameResultEmail(emailData);
 
+  if (eventRaffleDraw.chosenNumbers.length === result.numberOfCorrectMatches) {
+    await processWinningResult(userId, eventId, result);
+  }
+
   return result;
 };
 
@@ -260,7 +253,7 @@ const getRaffleDrawWinnersByEventId = async (eventId) => {
     .collection("raffleDrawWinners")
     .where("eventId", "==", eventId)
     .get();
-  const raffleDrawWinners = snapshot.empty ? null : snapshot.docs.at(0).data();
+  const raffleDrawWinners = snapshot.docs.map((doc) => doc.data());
   return raffleDrawWinners;
 };
 
@@ -274,98 +267,48 @@ const getRaffleDrawResultsByEventId = async (eventId) => {
   return raffleDrawResults;
 };
 
-const rewardTicketWinners = async (rewardData) => {
-  for (let i = 0; i < rewardData.length; i++) {
-    await saveAcquiredTicket(rewardData[i].acquiredTicket);
-    await sendWonTicketEmail(rewardData[i].emailData);
-  }
-};
+const processWinningResult = async (userId, eventId, result) => {
+  const uid = generateFirebaseId("raffleDrawWinners");
+  const winnerRecord = {
+    uid,
+    userId,
+    eventId,
+    raffleDrawRecord: {
+      uid: result.uid,
+      numberOfCorrectMatches: result.numberOfCorrectMatches,
+    },
+    wonTicketIndex: result.ticketIndex,
+    medium: "raffle draw",
+    createdAt: Date.now(),
+  };
 
-const getEventRaffleDrawWinnersByEventId = async (eventId, role) => {
-  let raffleDrawWinners = await getRaffleDrawWinnersByEventId(eventId);
+  await admin
+    .firestore()
+    .collection("raffleDrawWinners")
+    .doc(uid)
+    .set(winnerRecord);
 
-  if (!raffleDrawWinners) {
-    const event = await getEventById(eventId);
-    if (event && event.gameEndTimestamp > Date.now()) {
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        "Submission of raffle draw choices has not ended yet"
-      );
-    }
-
-    const raffleDrawResults = await getRaffleDrawResultsByEventId(eventId);
-
-    if (raffleDrawResults.length === 0) {
-      throw new ApiError(
-        httpStatus.NOT_FOUND,
-        "There are no results for this event's raffle draw"
-      );
-    }
-
-    const winningRaffleDrawResults = raffleDrawResults.filter(
-      (result) => result.numberOfCorrectMatches === 5
-    );
-
-    const winners = winningRaffleDrawResults.map((result) => ({
-      userId: result.userId,
-      raffleDrawRecord: {
-        uid: result.uid,
-        numberOfCorrectMatches: result.numberOfCorrectMatches,
-      },
-      wonTicketIndex: result.ticketIndex,
-      medium: "raffle draw",
-    }));
-
-    const users = await getUsers();
-    const rewardData = winners.map((winner) => {
-      const [user] = users.filter((user) => user.uid === winner.userId);
-      const [result] = raffleDrawResults.filter(
-        (result) => result.uid === winner.raffleDrawRecord.uid
-      );
-      const acquiredTicket = {
-        userId: user.uid,
-        eventId: event.uid,
-        ticketIndex: result.ticketIndex,
-        acquisitionMethod: "Won",
-        playedGame: "raffle draw",
-      };
-      const emailData = {
-        userName: user.firstName,
-        userEmail: user.email,
-        eventName: event.name,
-        eventDate: event.date,
-        playedGame: "raffle draw",
-        ticketUrl: `https://globeventnub.com/dashboard/tickets`,
-      };
-
-      return { acquiredTicket, emailData };
-    });
-    await rewardTicketWinners(rewardData);
-
-    const uid = generateFirebaseId("raffleDrawWinners");
-    raffleDrawWinners = {
-      uid,
-      eventId,
-      winners,
-      createdAt: Date.now(),
-    };
-
-    await admin
-      .firestore()
-      .collection("raffleDrawWinners")
-      .doc(uid)
-      .set(raffleDrawWinners);
-  }
-
-  const users = await getUsers();
+  const user = await getUserById(userId);
   const event = await getEventById(eventId);
-  raffleDrawWinners.winners = raffleDrawWinners.winners.map((winner) => {
-    winner.user = users.find((user) => user.uid === winner.userId);
-    winner.ticketWon = event.tickets[winner.wonTicketIndex] || 0;
-    return winner;
-  });
 
-  return raffleDrawWinners;
+  const acquiredTicket = {
+    userId: user.uid,
+    eventId: event.uid,
+    ticketIndex: result.ticketIndex,
+    acquisitionMethod: "Won",
+    playedGame: "raffle draw",
+  };
+  const emailData = {
+    userName: user.firstName,
+    userEmail: user.email,
+    eventName: event.name,
+    eventDate: event.date,
+    playedGame: "raffle draw",
+    ticketUrl: `https://globeventnub.com/dashboard/tickets`,
+  };
+
+  await saveAcquiredTicket(acquiredTicket);
+  await sendWonTicketEmail(emailData);
 };
 
 const getEventRaffleDrawResults = async (eventId) => {
@@ -400,6 +343,6 @@ module.exports = {
   deleteRaffleDrawById,
   getEventRaffleDrawByEventId,
   submitEventRaffleDrawChoiceByEventId,
-  getEventRaffleDrawWinnersByEventId,
+  getRaffleDrawWinnersByEventId,
   getEventRaffleDrawResults,
 };

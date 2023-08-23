@@ -54,9 +54,8 @@ const submitEventRaffleDrawChoice = catchAsync(async (req, res) => {
 });
 
 const getEventRaffleDrawWinners = catchAsync(async (req, res) => {
-  const result = await raffleDrawService.getEventRaffleDrawWinnersByEventId(
-    req.params.eventId,
-    req.user.role
+  const result = await raffleDrawService.getRaffleDrawWinnersByEventId(
+    req.params.eventId
   );
   res.send(result);
 });
