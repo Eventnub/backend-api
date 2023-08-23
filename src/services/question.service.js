@@ -112,12 +112,11 @@ const deleteQuestionById = async (deleter, uid) => {
   await admin.firestore().collection("questions").doc(uid).delete();
 };
 
-const getQuizResultByUserIdAndEventId = async (userId, eventId) => {
+const getQuizResultByPaymentId = async (paymentId) => {
   const snapshot = await admin
     .firestore()
     .collection("quizResults")
-    .where("userId", "==", userId)
-    .where("eventId", "==", eventId)
+    .where("paymentId", "==", paymentId)
     .get();
   const quizResult = snapshot.empty ? null : snapshot.docs.at(0).data();
   return quizResult;
@@ -284,6 +283,10 @@ const submitEventQuizAnswersByEventId = async (
     };
 
     await sendGameResultEmail(emailData);
+
+    if (result.numberOfPasses === result.numberOfQuestions) {
+      await processWinningResult(userId, eventId, result, null);
+    }
   }
 
   return result;
@@ -321,6 +324,7 @@ module.exports = {
   deleteQuestionById,
   getEventQuizByEventId,
   submitEventQuizAnswersByEventId,
+  getQuizResultByPaymentId,
   getQuizResultsByEventId,
   getEventQuizResults,
 };

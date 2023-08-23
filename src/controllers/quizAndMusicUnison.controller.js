@@ -3,9 +3,8 @@ const { quizAndMusicUnisonService } = require("../services");
 
 const getEventQuizAndMusicUnisonWinners = catchAsync(async (req, res) => {
   const result =
-    await quizAndMusicUnisonService.getEventQuizAndMusicUnisonWinners(
-      req.params.eventId,
-      req.user.role
+    await quizAndMusicUnisonService.getQuizAndMusicUnisonWinnersByEventId(
+      req.params.eventId
     );
   res.send(result);
 });

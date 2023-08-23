@@ -4,9 +4,7 @@ const { sendWonTicketEmail } = require("./email.service");
 const { getEventById } = require("./event.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { saveAcquiredTicket } = require("./ticket.service");
-const { getUsers, getUserById } = require("./user.service");
-const { getQuizResultsByEventId } = require("./question.service");
-const { getMusicUnisonResultsByEventId } = require("./musicUnison.service");
+const { getUserById } = require("./user.service");
 
 const getQuizAndMusicUnisonWinnersByEventId = async (eventId) => {
   const snapshot = await admin
@@ -14,141 +12,63 @@ const getQuizAndMusicUnisonWinnersByEventId = async (eventId) => {
     .collection("quizAndMusicUnisonWinners")
     .where("eventId", "==", eventId)
     .get();
-  const quizAndMusicUnisonWinners = snapshot.empty
-    ? null
-    : snapshot.docs.at(0).data();
+  const quizAndMusicUnisonWinners = snapshot.docs.map((doc) => doc.data());
   return quizAndMusicUnisonWinners;
 };
 
-const rewardTicketWinners = async (rewardData) => {
-  for (let i = 0; i < rewardData.length; i++) {
-    await saveAcquiredTicket(rewardData[i].acquiredTicket);
-    await sendWonTicketEmail(rewardData[i].emailData);
-  }
-};
+const processWinningResult = async (
+  userId,
+  eventId,
+  quizResult,
+  musicUnisonResult
+) => {
+  const uid = generateFirebaseId("quizAndMusicUnisonWinners");
+  const winnerRecord = {
+    uid,
+    userId,
+    eventId,
+    isIOSDevice: quizResult.isIOSDevice,
+    quizRecord: {
+      uid: quizResult.uid,
+      numberOfPasses: quizResult.numberOfPasses,
+    },
+    musicUnisonRecord: {
+      uid: musicUnisonResult.uid || "NA",
+      accuracyRatio: musicUnisonResult.accuracyRatio || "NA",
+    },
+    wonTicketIndex: quizResult.ticketIndex,
+    medium: "quiz and music match",
+  };
 
-const getEventQuizAndMusicUnisonWinners = async (eventId, role) => {
-  let quizAndMusicUnisonWinners = await getQuizAndMusicUnisonWinnersByEventId(
-    eventId
-  );
+  await admin
+    .firestore()
+    .collection("quizAndMusicUnisonWinners")
+    .doc(uid)
+    .set(winnerRecord);
 
-  if (!quizAndMusicUnisonWinners) {
-    const event = await getEventById(eventId);
-    if (event && event.gameEndTimestamp > Date.now()) {
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        "Submission of quiz answers and music match audio has not ended yet"
-      );
-    }
-
-    const quizResults = await getQuizResultsByEventId(eventId);
-    const musicUnisonResults = await getMusicUnisonResultsByEventId(eventId);
-
-    if (quizResults.length === 0) {
-      throw new ApiError(
-        httpStatus.NOT_FOUND,
-        "There are no results for this event's quiz"
-      );
-    }
-
-    const winningQuizResults = quizResults.filter(
-      (result) => result.numberOfPasses === result.numberOfQuestions
-    );
-
-    const winners = [];
-
-    for (let i = 0; i < winningQuizResults.length; i++) {
-      const currentQuizResult = winningQuizResults[i];
-      const [musicUnisonResult] = musicUnisonResults.filter(
-        (musicUnisonResult) =>
-          currentQuizResult.userId === musicUnisonResult.userId &&
-          currentQuizResult.eventId === musicUnisonResult.eventId &&
-          currentQuizResult.paymentId === musicUnisonResult.paymentId
-      );
-
-      if (musicUnisonResult && !musicUnisonResult.isReviewed) {
-        throw new ApiError(
-          httpStatus.BAD_REQUEST,
-          "There is an unreviewed music unison submission"
-        );
-      }
-
-      if (
-        (musicUnisonResult && +musicUnisonResult.accuracyRatio > 0.8) ||
-        currentQuizResult.isIOSDevice
-      ) {
-        winners.push({
-          userId: currentQuizResult.userId || musicUnisonResult.userId,
-          eventId: currentQuizResult.eventId || musicUnisonResult.eventId,
-          isIOSDevice: currentQuizResult.isIOSDevice,
-          quizRecord: {
-            uid: currentQuizResult.uid,
-            numberOfPasses: currentQuizResult.numberOfPasses,
-          },
-          musicUnisonRecord: {
-            uid: musicUnisonResult.uid || "NA",
-            accuracyRatio: musicUnisonResult.accuracyRatio || "NA",
-          },
-          wonTicketIndex: currentQuizResult.ticketIndex,
-          medium: "quiz and music match",
-        });
-      }
-    }
-
-    const users = await getUsers();
-    const rewardData = winners.map((winner) => {
-      const [user] = users.filter((user) => user.uid === winner.userId);
-      const [result] = quizResults.filter(
-        (result) => result.uid === winner.quizRecord.uid
-      );
-      const acquiredTicket = {
-        userId: user.uid,
-        eventId: event.uid,
-        ticketIndex: result.ticketIndex,
-        acquisitionMethod: "Won",
-        playedGame: "quiz and music unison",
-      };
-      const emailData = {
-        userName: user.firstName,
-        userEmail: user.email,
-        eventName: event.name,
-        eventDate: event.date,
-        playedGame: "Quiz and Music Unison",
-        ticketUrl: `https://globeventnub.com/dashboard/tickets`,
-      };
-
-      return { acquiredTicket, emailData };
-    });
-    await rewardTicketWinners(rewardData);
-
-    const uid = generateFirebaseId("quizAndMusicUnisonWinners");
-    quizAndMusicUnisonWinners = {
-      uid,
-      eventId,
-      winners,
-      createdAt: Date.now(),
-    };
-
-    await admin
-      .firestore()
-      .collection("quizAndMusicUnisonWinners")
-      .doc(uid)
-      .set(quizAndMusicUnisonWinners);
-  }
-
-  const users = await getUsers();
+  const user = await getUserById(userId);
   const event = await getEventById(eventId);
-  quizAndMusicUnisonWinners.winners = quizAndMusicUnisonWinners.winners.map(
-    (winner) => {
-      winner.user = users.find((user) => user.uid === winner.userId);
-      winner.ticketWon = event.tickets[winner.wonTicketIndex] || 0;
-      return winner;
-    }
-  );
 
-  return quizAndMusicUnisonWinners;
+  const acquiredTicket = {
+    userId: user.uid,
+    eventId: event.uid,
+    ticketIndex: quizResult.ticketIndex,
+    acquisitionMethod: "Won",
+    playedGame: "quiz and music unison",
+  };
+  const emailData = {
+    userName: user.firstName,
+    userEmail: user.email,
+    eventName: event.name,
+    eventDate: event.date,
+    playedGame: "Quiz and Music Unison",
+    ticketUrl: `https://globeventnub.com/dashboard/tickets`,
+  };
+
+  await saveAcquiredTicket(acquiredTicket);
+  await sendWonTicketEmail(emailData);
 };
 
 module.exports = {
-  getEventQuizAndMusicUnisonWinners,
+  getQuizAndMusicUnisonWinnersByEventId,
 };
