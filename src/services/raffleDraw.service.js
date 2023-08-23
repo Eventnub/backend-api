@@ -218,7 +218,6 @@ const submitEventRaffleDrawChoiceByEventId = async (
   };
 
   await admin.firestore().collection("raffleDrawResults").doc(uid).set(result);
-  delete result["correctMatches"];
   await updatePaymentExtraData(payment.uid, { hasPlayedRaffleDraw: true });
 
   const user = await getUserById(userId);
@@ -244,6 +243,7 @@ const submitEventRaffleDrawChoiceByEventId = async (
     await processWinningResult(userId, eventId, result);
   }
 
+  delete result["correctMatches"];
   return result;
 };
 
