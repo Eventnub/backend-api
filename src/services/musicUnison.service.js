@@ -10,10 +10,8 @@ const {
 } = require("./STT.service");
 const { getPaymentById, updatePaymentExtraData } = require("./payment.service");
 const { getUsers } = require("./user.service");
-const {
-  getEventQuizResults,
-  getQuizResultByPaymentId,
-} = require("./question.service");
+const { getEventQuizResults } = require("./question.service");
+const { processWinningResult } = require("./quizAndMusicUnison.service");
 const { sendGameResultEmail } = require("./email.service");
 
 const createMusicUnison = async (creator, audioFile, musicUnisonBody) => {

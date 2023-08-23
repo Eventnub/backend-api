@@ -71,4 +71,5 @@ const processWinningResult = async (
 
 module.exports = {
   getQuizAndMusicUnisonWinnersByEventId,
+  processWinningResult,
 };
