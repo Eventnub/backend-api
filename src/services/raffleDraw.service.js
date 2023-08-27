@@ -264,7 +264,10 @@ const getRaffleDrawWinnersByEventId = async (eventId) => {
       const event = events.find((event) => event.uid === winner.eventId);
 
       winner.user = user;
-      winner.ticketWon = event.tickets[winner.wonTicketIndex || 0];
+      winner.ticketWon =
+        winner.wonTicketIndex < event.tickets?.length
+          ? event.tickets[winner.wonTicketIndex]
+          : event.tickets[0];
 
       return winner;
     });
