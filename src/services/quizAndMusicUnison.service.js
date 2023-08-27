@@ -1,10 +1,10 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
 const { sendWonTicketEmail } = require("./email.service");
-const { getEventById } = require("./event.service");
+const { getEventById, getEvents } = require("./event.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { saveAcquiredTicket } = require("./ticket.service");
-const { getUserById } = require("./user.service");
+const { getUserById, getUsers } = require("./user.service");
 
 const getQuizAndMusicUnisonWinnersByEventId = async (eventId) => {
   const snapshot = await admin
@@ -12,7 +12,26 @@ const getQuizAndMusicUnisonWinnersByEventId = async (eventId) => {
     .collection("quizAndMusicUnisonWinners")
     .where("eventId", "==", eventId)
     .get();
-  const quizAndMusicUnisonWinners = snapshot.docs.map((doc) => doc.data());
+  let quizAndMusicUnisonWinners = snapshot.docs.map((doc) => doc.data());
+
+  if (quizAndMusicUnisonWinners && quizAndMusicUnisonWinners.length > 0) {
+    const users = await getUsers();
+    const events = await getEvents({});
+
+    quizAndMusicUnisonWinners = quizAndMusicUnisonWinners.map((winner) => {
+      const user = users.find((user) => user.uid === winner.userId);
+      const event = events.find((event) => event.uid === winner.eventId);
+
+      winner.user = user;
+      winner.ticketWon =
+        winner.wonTicketIndex < event.tickets?.length
+          ? event.tickets[winner.wonTicketIndex]
+          : event.tickets[0];
+
+      return winner;
+    });
+  }
+
   return quizAndMusicUnisonWinners;
 };
 
