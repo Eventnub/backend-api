@@ -3,7 +3,7 @@ const ApiError = require("../utils/ApiError");
 const shuffle = require("../utils/shuffle");
 const { genNValuesInRange } = require("../utils/generator");
 const { sendWonTicketEmail, sendGameResultEmail } = require("./email.service");
-const { getEventById } = require("./event.service");
+const { getEventById, getEvents } = require("./event.service");
 const { admin, generateFirebaseId } = require("./firebase.service");
 const { getPaymentById, updatePaymentExtraData } = require("./payment.service");
 const { saveAcquiredTicket } = require("./ticket.service");
@@ -253,7 +253,23 @@ const getRaffleDrawWinnersByEventId = async (eventId) => {
     .collection("raffleDrawWinners")
     .where("eventId", "==", eventId)
     .get();
-  const raffleDrawWinners = snapshot.docs.map((doc) => doc.data());
+  let raffleDrawWinners = snapshot.docs.map((doc) => doc.data());
+
+  if (raffleDrawWinners && raffleDrawWinners.length > 0) {
+    const users = await getUsers();
+    const events = await getEvents({});
+
+    raffleDrawWinners = raffleDrawWinners.map((winner) => {
+      const user = users.find((user) => user.uid === winner.userId);
+      const event = events.find((event) => event.uid === winner.eventId);
+
+      winner.user = user;
+      winner.ticketWon = event.tickets[winner.wonTicketIndex || 0];
+
+      return winner;
+    });
+  }
+
   return raffleDrawWinners;
 };
 
